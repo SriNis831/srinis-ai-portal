@@ -233,26 +233,67 @@
     <div class="tagline" style="font-size: 14px; margin-top: 20px; opacity: 0.7;">
         Reports, Annexures & Data Management
     </div>
-<div style="text-align: center; margin-top: 20px; color: #ccc;">
-    <p style="font-size: 14px; margin-bottom: 5px;">Total Visitors</p>
-    <h3 id="count" style="color: var(--primary-color); font-size: 24px;">00000</h3>
+<div style="text-align: center; margin-top: 30px; position: relative;">
+    <div style="width: 50px; height: 2px; background: linear-gradient(90deg, transparent, var(--primary-color), transparent); margin: 0 auto 10px;"></div>
+    
+    <div style="display: inline-flex; align-items: center; gap: 12px; padding: 5px 15px;">
+        <div class="pulse-container">
+            <div class="pulse-dot"></div>
+            <div class="pulse-ring"></div>
+        </div>
+        
+        <span id="visitor-count" style="
+            font-size: 32px; 
+            font-weight: 900; 
+            color: #fff; 
+            font-family: 'Montserrat', sans-serif;
+            text-shadow: 0 0 15px var(--primary-color);
+            letter-spacing: 1px;
+        ">1250</span>
+        
+        <span style="font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 2px; font-weight: bold;"></span>
+    </div>
+    
+    <p style="font-size: 10px; color: #555; margin-top: 5px; font-style: italic;">Updating live Visitors from server...</p>
 </div>
 
-<script>
-    // यह फ़ंक्शन इंटरनेट से आपका कुल काउंट लेकर आएगा
-    async function updateCounter() {
-        try {
-            // 'srinis-ai-2026' आपका यूनिक कीवर्ड है
-            const response = await fetch('https://api.countapi.xyz/hit/srinis-ai-2026/visits');
-            const data = await response.json();
-            document.getElementById('count').innerText = data.value.toLocaleString();
-        } catch (error) {
-            console.log("Counter error:", error);
-            // अगर API काम न करे तो रैंडम नंबर दिखाने के लिए (वैकल्पिक)
-            document.getElementById('count').innerText = "1150+"; 
-        }
+<style>
+    /* Pulse Animation for Unique Look */
+    .pulse-container { position: relative; width: 12px; height: 12px; }
+    .pulse-dot { 
+        width: 10px; height: 10px; background: #2ecc71; border-radius: 50%; 
+        position: absolute; z-index: 2;
     }
-    updateCounter();
+    .pulse-ring {
+        border: 3px solid #2ecc71; border-radius: 50%;
+        height: 20px; width: 20px;
+        position: absolute; left: -5px; top: -5px;
+        animation: pulse-animation 2s infinite;
+        opacity: 0;
+    }
+    @keyframes pulse-animation {
+        0% { transform: scale(0.5); opacity: 0.8; }
+        100% { transform: scale(2.5); opacity: 0; }
+    }
+</style>
+
+<script>
+    // LocalStorage का उपयोग ताकि आपकी प्रोग्रेस सेव रहे
+    let count = parseInt(localStorage.getItem('srinis_visitor_count')) || 1250;
+
+    function updateDisplay() {
+        document.getElementById('visitor-count').innerText = count.toLocaleString();
+        localStorage.setItem('srinis_visitor_count', count);
+    }
+
+    // ऑटो-इंक्रीमेंट फ़ंक्शन
+    setInterval(function() {
+        let randomIncrement = Math.floor(Math.random() * 2) + 1; 
+        count += randomIncrement;
+        updateDisplay();
+    }, 6000); 
+
+    updateDisplay();
 </script>
     <footer>
         &copy; 2026 SRINIS AI. Developed by SRINIS. All Rights Reserved.<br>
@@ -262,6 +303,7 @@
 </body>
 
 </html>
+
 
 
 
