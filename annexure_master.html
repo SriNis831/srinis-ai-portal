@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Dashboard - SRINIS AI</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #e9ecef; margin: 0; padding-bottom: 80px; }
+        
+        /* --- NAVIGATION BAR --- */
+        nav { 
+            background: #2c3e50; 
+            padding: 10px; 
+            position: sticky; top: 0; z-index: 1000; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap; 
+            gap: 8px;
+        }
+        nav a { 
+            color: white; text-decoration: none; padding: 8px 12px; 
+            font-weight: bold; border-radius: 5px; transition: 0.3s; font-size: 13px; 
+            white-space: nowrap;
+        }
+        nav a:hover { background: #34495e; }
+        nav a.active { background: #e67e22; }
+
+        /* BUTTON STYLES */
+        .btn-home { background: #3498db; display: flex; align-items: center; gap: 5px; }
+        .btn-email-nav { background: #1abc9c; color: white; border: none; padding: 8px 12px; border-radius: 5px; font-weight: bold; font-size: 13px; cursor: pointer; }
+        .btn-clear-nav { background: #c0392b; color: white; border: none; padding: 8px 12px; border-radius: 5px; font-weight: bold; font-size: 13px; cursor: pointer; }
+
+        /* --- DASHBOARD STYLES --- */
+        .container { max-width: 1000px; margin: 15px auto; padding: 0 15px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h3 { margin-top: 0; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; color: #2c3e50; font-size: 18px; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+        label { font-weight: bold; font-size: 13px; display: block; margin-bottom: 5px; color: #555; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
+        
+        /* Student Entry Section */
+        .student-row-input { 
+            display: flex; flex-wrap: wrap; gap: 10px; background: #f8f9fa; padding: 15px; border-radius: 8px; align-items: center;
+        }
+        .student-row-input input { flex: 1 1 100%; } 
+        @media (min-width: 768px) { .student-row-input input { flex: 1; } }
+
+        button { cursor: pointer; padding: 12px 20px; border: none; border-radius: 5px; font-weight: bold; color: white; transition: 0.3s; font-size: 14px; }
+        .btn-add { background: #27ae60; width: 100%; margin-top: 5px; }
+        .btn-update { background: #e67e22; width: 100%; margin-top: 5px; }
+        .btn-del { background: #e74c3c; padding: 6px 12px; font-size: 12px; }
+        .btn-edit { background: #3498db; padding: 6px 12px; font-size: 12px; margin-right: 5px; }
+
+        .table-responsive { overflow-x: auto; margin-top: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 14px; }
+        th { background: #34495e; color: white; }
+
+        .floating-save { position: fixed; bottom: 20px; right: 20px; background: #e67e22; padding: 15px 25px; font-size: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border-radius: 50px; z-index: 999; }
+        
+        /* --- FOOTER STYLING (NEW) --- */
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            background: #2c3e50; /* Dark background matching Nav */
+            color: #ecf0f1; /* Light text */
+            font-size: 13px;
+            border-top: 4px solid #e67e22; /* Orange accent line */
+        }
+
+        /* Mobile specific adjustments */
+        @media (max-width: 600px) {
+            nav { padding: 5px; gap: 5px; justify-content: space-between; }
+            nav a, .btn-email-nav, .btn-clear-nav { flex-grow: 1; text-align: center; font-size: 11px; padding: 8px 5px; }
+            .card { padding: 15px; }
+            h3 { font-size: 16px; }
+        }
+
+        @media print { 
+            nav, .floating-save, button, .student-row-input, footer { display: none !important; } 
+            body { background: white; }
+            .card { box-shadow: none; border: 1px solid #ddd; }
+            .table-responsive { border: none; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="index.html" class="btn-home">🏠 Home</a>
+    <a href="#" class="active">🎛️ Master</a>
+    <a href="annex1.html" class="btn-home">📄 Annexure-1</a>
+    <a href="annex2.html" class="btn-home">📊 Annexure-2</a>
+    <a href="annex3.html" class="btn-home">📝 Annexure-3</a>
+    <button onclick="sendEmail()" class="btn-email-nav">📧 Email</button>
+    <button onclick="clearAllData()" class="btn-clear-nav">🗑️ Reset</button>
+</nav>
+<marquee direction="left" style="color:white; font-size:15px; font-weight:bold; background:black;" >Annexure-2 और Annexure-3 केवल डाटा भरने पर ही दिखाई देगा । डाटा भरने के लिए Master पेज का इस्तमाल करें</marquee>
+
+<div class="container">
+    <div class="card">
+        <h3>1. School & Exam Details</h3>
+        <div class="grid">
+            <div><label>Session</label><input type="text" id="sess" value="2025-26"></div>
+            <div><label>School Name</label><input type="text" id="sch" placeholder=""></div>
+            <div><label>Exam Center Code</label><input type="number" id="code" placeholder="" oninput="validateNum(this, 8)"></div>
+            <div><label>UDISE Code</label><input type="number" id="uds" oninput="validateNum(this, 11)"></div>
+            <div><label>Sector</label><input type="text" id="sect" value=""></div>
+            <div><label>Class</label><input type="text" id="class" value=""></div>
+            <div><label>Level</label><select id="lvl"><option value="L-2">L-2</option><option value="L-4">L-4</option></select></div>
+            <div><label>Date</label><input type="date" id="date"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>2. Assessor Info</h3>
+        <div class="grid">
+            <div><label>Assessor Name</label><input type="text" id="asr" placeholder="" oninput="validateText(this)"></div>
+            <div><label>Contact No</label><input type="number" id="cnt" oninput="validateNum(this, 10)"></div>
+            <div><label>Email ID</label><input type="email" id="email" oninput="validateEmail(this)"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>3. Student Entry</h3>
+        <div class="student-row-input">
+            <input type="text" id="s_name" placeholder="Student Name" oninput="validateText(this)">
+            <input type="text" id="s_father" placeholder="Father Name" oninput="validateText(this)">
+            <input type="number" id="s_aadhar" placeholder="Aadhar" oninput="validateNum(this, 12)">
+            <input type="text" id="s_reg" placeholder="Reg/Roll No">
+            <button onclick="addOrUpdateStudent()" id="btn_action" class="btn-add">+ Add Student</button>
+        </div>
+        
+        <div class="table-responsive">
+            <table border="1">
+                <thead><tr><th>SR.</th><th>Student Name</th><th>Father Name</th><th>Aadhar No.</th><th>Reg.\Roll No</th><th>Action</th></tr></thead>
+                <tbody id="student_list"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<button onclick="saveData()" class="floating-save">💾 SAVE DATA</button>
+
+
+
+
+<script>
+    let students = JSON.parse(localStorage.getItem('vse_students')) || [];
+    let editIndex = -1;
+
+    function validateNum(el, max) { el.value = el.value.replace(/[^0-9]/g, '').slice(0, max); }
+    function validateText(el) { el.value = el.value.replace(/[^a-zA-Z\s]/g, ''); }
+    function validateEmail(el) { el.value = el.value.toLowerCase(); }
+
+    function loadForm() {
+        const d = JSON.parse(localStorage.getItem('vse_master')) || {};
+        const fields = ['sess','sch','code','uds','sect','class','lvl','asr','cnt','email'];
+        fields.forEach(f => { if(d[f]) document.getElementById(f).value = d[f]; });
+        
+        if(d.date) {
+            const parts = d.date.split('-'); 
+            if(parts.length === 3) { document.getElementById('date').value = `${parts[2]}-${parts[1]}-${parts[0]}`; }
+        }
+        renderList();
+    }
+
+    function addOrUpdateStudent() {
+        const n = document.getElementById('s_name').value;
+        const a = document.getElementById('s_aadhar').value;
+        const r = document.getElementById('s_reg').value;
+        const f = document.getElementById('s_father').value;
+
+        if(!n) return alert("Student Name Required!");
+        
+        if (editIndex === -1) {
+            students.push({ n, a, r, f });
+        } else {
+            students[editIndex] = { n, a, r, f };
+            editIndex = -1;
+            document.getElementById('btn_action').innerText = "+ Add Student";
+            document.getElementById('btn_action').className = "btn-add";
+        }
+
+        clearInputs();
+        document.getElementById('s_name').focus();
+        renderList();
+    }
+
+    function editStudent(i) {
+        const s = students[i];
+        document.getElementById('s_name').value = s.n;
+        document.getElementById('s_aadhar').value = s.a;
+        document.getElementById('s_reg').value = s.r;
+        document.getElementById('s_father').value = s.f;
+        editIndex = i;
+        const btn = document.getElementById('btn_action');
+        btn.innerText = "Update";
+        btn.className = "btn-update";
+        document.querySelector('.student-row-input').scrollIntoView({behavior: "smooth"});
+    }
+
+    function delStudent(i) {
+        if(confirm("Delete this student?")) {
+            students.splice(i, 1);
+            if(editIndex === i) { clearInputs(); editIndex = -1; document.getElementById('btn_action').innerText = "+ Add Student"; document.getElementById('btn_action').className = "btn-add"; }
+            renderList();
+        }
+    }
+
+    function clearInputs() {
+        document.getElementById('s_name').value = ""; document.getElementById('s_aadhar').value = "";
+        document.getElementById('s_reg').value = ""; document.getElementById('s_father').value = "";
+    }
+
+    function renderList() {
+        const tbody = document.getElementById('student_list');
+        tbody.innerHTML = students.map((s, i) => `
+            <tr>
+                <td>${i+1}</td><td>${s.n}</td><td>${s.f}</td><td>${s.a}</td><td>${s.r}</td>
+                <td><button onclick="editStudent(${i})" class="btn-edit">✎</button><button onclick="delStudent(${i})" class="btn-del">✖</button></td>
+            </tr>`).join('');
+    }
+
+    function saveData() {
+        const rawDate = document.getElementById('date').value;
+        let formattedDate = "";
+        if(rawDate) {
+            const d = new Date(rawDate);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            formattedDate = `${day}-${month}-${year}`;
+        }
+
+        const data = {
+            sess: document.getElementById('sess').value,
+            sch: document.getElementById('sch').value.toUpperCase(),
+            code: document.getElementById('code').value,
+            uds: document.getElementById('uds').value,
+            sect: document.getElementById('sect').value,
+            class: document.getElementById('class').value,
+            lvl: document.getElementById('lvl').value,
+            date: formattedDate,
+            asr: document.getElementById('asr').value.toUpperCase(),
+            cnt: document.getElementById('cnt').value,
+            email: document.getElementById('email').value
+        };
+        localStorage.setItem('vse_master', JSON.stringify(data));
+        localStorage.setItem('vse_students', JSON.stringify(students));
+        alert("Data Saved Successfully!");
+    }
+
+    function clearAllData() {
+        if(confirm("Delete ALL data? This cannot be undone.")) {
+            localStorage.removeItem('vse_master'); localStorage.removeItem('vse_students'); location.reload(); 
+        }
+    }
+
+    function sendEmail() {
+        let userEmail = document.getElementById('email').value;
+        if (!userEmail) userEmail = prompt("Enter Email ID:", "");
+        if (!userEmail) return;
+        alert("Instructions:\n1. Print window will open.\n2. Save as PDF.\n3. Attach PDF in the email app that opens next.");
+        window.print();
+        setTimeout(() => {
+            const schName = document.getElementById('sch').value || "School";
+            window.location.href = `mailto:${userEmail}?subject=Master Data - ${schName}&body=Please find attached the data.`;
+        }, 1000);
+    }
+
+    window.onload = loadForm;
+</script>
+<footer>
+    &copy; 2026 SRINIS AI. Developed by SRINIS. All Rights Reserved.<br>
+    Optimized for Mobile & Desktop
+</footer>
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>SRINIS AI - Vocational Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@500;700&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #ff6b35;
+            --secondary-color: #ff9f43;
+            --bg-color: #1a1a1a;
+            --card-bg: #252525;
+            --text-color: #ffffff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; transition: all 0.5s ease; }
+
+        body {
+            font-family: 'Noto Sans Devanagari', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding: 10px; /* Safe padding for mobile */
+        }
+
+        /* --- HERO SECTION --- */
+        header {
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 30px;
+            animation: fadeInDown 1s ease-out;
+            width: 100%;
+            padding: 0 10px;
+        }
+
+        .srinis-logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 80px; /* Desktop Size */
+            font-weight: 900;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, #fff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 10px 20px rgba(0,0,0,0.5);
+            letter-spacing: -2px;
+            line-height: 1.1;
+            display: inline-block;
+        }
+
+        .tagline {
+            font-size: 18px;
+            color: #ccc;
+            margin-top: 10px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* --- DASHBOARD GRID --- */
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap; /* Allows stacking on mobile */
+            max-width: 1200px;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            width: 100%; /* Takes full width on mobile */
+            max-width: 350px; /* Limits width on desktop */
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+            margin-bottom: 10px; /* Gap for mobile stacking */
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary-color);
+            box-shadow: 0 20px 50px var(--secondary-color); 
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .card-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .card p {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .btn-open {
+            display: inline-block;
+            padding: 12px 30px;
+            border-radius: 50px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 14px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            margin-top: auto;
+            padding: 20px;
+            color: #555;
+            font-size: 12px;
+            text-align: center;
+            width: 100%;
+        }
+
+        /* --- MOBILE RESPONSIVENESS (MEDIA QUERIES) --- */
+        @media (max-width: 768px) {
+            header { margin-top: 30px; margin-bottom: 20px; }
+            
+            .srinis-logo { 
+                font-size: 45px; /* Smaller Logo for Mobile */
+                letter-spacing: -1px;
+            }
+            
+            .tagline { 
+                font-size: 12px; 
+                margin-top: 5px;
+                letter-spacing: 1px;
+            }
+
+            .container { 
+                padding: 10px; 
+                gap: 20px; 
+            }
+
+            .card { 
+                padding: 25px; 
+            }
+            
+            .card h2 { font-size: 20px; }
+            .card-icon { font-size: 40px; margin-bottom: 15px; }
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+
+    <script>
+        function applyRandomTheme() {
+            const themes = [
+                { p: '#ff6b35', s: '#ff9f43' }, // Orange
+                { p: '#00d2d3', s: '#54a0ff' }, // Cyan Blue
+                { p: '#ff4757', s: '#ff6b81' }, // Red/Pink
+                { p: '#2ecc71', s: '#27ae60' }, // Green
+                { p: '#9b59b6', s: '#8e44ad' }, // Purple
+                { p: '#f1c40f', s: '#f39c12' }, // Yellow
+                { p: '#e056fd', s: '#be2edd' }  // Neon
+            ];
+            const randomTheme = themes[Math.floor(Math.random() * themes.length)];
+            const root = document.documentElement.style;
+            root.setProperty('--primary-color', randomTheme.p);
+            root.setProperty('--secondary-color', randomTheme.s);
+        }
+        window.onload = applyRandomTheme;
+    </script>
+</head>
+<body>
+
+    <header>
+        <div class="srinis-logo">SriNis AI </div>
+        <div class="tagline">Vocational Education Management System</div>     
+    </header>
+
+    <div class="container">
+        <a href="attendance.html" class="card">
+            <div class="card-icon">📅</div>
+            <h2>Attendance Form</h2>
+            <p>Generate monthly vocational attendance reports (Part A & Part B) with auto-calculation.</p>
+            <div class="btn-open">Open Form</div>
+        </a>
+
+        <a href="annexure_master.html" class="card">
+            <div class="card-icon">📊</div>
+            <h2>Assessment System</h2>
+            <p>Manage student data and generate Annexure 1, 2, and 3 for practical assessments.</p>
+            <div class="btn-open">Open Dashboard</div>
+        </a>
+		
+		<a href="annual_exam.html" class="card">
+            <div class="card-icon">📝</div>
+            <h2>Annual Examination 2026</h2>
+            <p>Generate, manage, and download annual examination question papers for Class 9 & 11.</p>
+            <div class="btn-open">Exams Papers & AnsKey 2026</div>
+        </a>
+    </div>
+    
+    <div class="tagline" style="font-size: 14px; margin-top: 20px; opacity: 0.7;">
+        Reports, Annexures & Data Management
+    </div>
+
+    <footer>
+        &copy; 2026 SRINIS AI. Developed by SRINIS. All Rights Reserved.<br>
+        Optimized for Mobile & Desktop
+    </footer>
+
+</body>
+</html>

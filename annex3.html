@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Annexure 3 - Attendance Sheet</title>
+    <style>
+        body { font-family: 'Times New Roman', serif; background: #555; margin: 0; }
+        
+        /* Navigation */
+        nav { background: #2c3e50; padding: 10px; text-align: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+        nav a { color: white; text-decoration: none; padding: 8px 15px; margin: 0 5px; font-weight: bold; border-radius: 5px; font-family: sans-serif; font-size: 13px; }
+        nav a:hover { background: #34495e; }
+        nav a.active { background: #e67e22; }
+
+        /* A4 Page Portrait */
+        .page { 
+            width: 210mm; 
+            min-height: 297mm; 
+            padding: 10mm 10mm; 
+            margin: 20px auto; 
+            background: white; box-sizing: border-box; position: relative; 
+        }
+        
+        /* HEADER SECTION */
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .logo-img { height: 55px; }
+        .annex-title { text-align: center; font-weight: bold; font-size: 16px; margin: 5px 0; }
+        
+        .box-title { 
+            border: 2px solid #000; text-align: center; padding: 4px; 
+            font-weight: bold; font-size: 15px; margin-bottom: 5px; background: #fff;
+        }
+        
+        .sub-header { text-align: center; font-weight: bold; font-size: 13px; margin-bottom: 20px; }
+
+        /* INFO GRID */
+        .info-container { width: 100%; margin-bottom: 10px; font-weight: bold; font-size: 12px; font-family: 'Times New Roman'; }
+        
+        .row-1 { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .row-2 { display: flex; justify-content: space-between; margin-bottom: 8px; }
+
+        /* TABLE STYLING */
+        table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: center; color: #000; table-layout: fixed; }
+        th, td { border: 1px solid #000; padding: 4px; vertical-align: middle; word-wrap: break-word; }
+        
+        /* Row Height (Kept 45px for Signatures) */
+        tr.student-row { height: 45px; } 
+
+        /* Header Colors */
+        thead tr { background-color: #d9d9d9; } 
+        th { font-weight: bold; padding: 8px 4px; }
+
+        /* Column Widths */
+        .col-sl { width: 5%; }
+        .col-id { width: 15%; }
+        .col-name { width: 22%; text-align: left; }
+        .col-father { width: 22%; text-align: left; }
+        .col-sig { width: 16%; } 
+        
+        /* Footer */
+        .footer-section { margin-top: 30px; font-size: 12px; font-weight: bold; }
+        .footer-row { display: flex; justify-content: space-between; margin-bottom: 25px; align-items: flex-end; }
+        .principal-row { margin-top: 20px; border-top: 1px solid transparent; }
+
+        /* PRINT SETTINGS (AUTO FIT FIX) */
+        @media print { 
+            nav, button { display: none !important; } 
+            body { 
+                background: white; 
+                margin: 0; 
+                zoom: 95%; /* Auto Scale to 95% */
+            } 
+            .page { 
+                margin: 0 auto; 
+                border: none; 
+                box-shadow: none; 
+                page-break-after: always; 
+                width: 100%; 
+                height: 100%; 
+                padding: 5mm; /* Safe Padding */
+            } 
+            @page { size: portrait; margin: 5mm; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="annexure_master.html">🎛️ MASTER</a>
+    <a href="annex1.html">📄 ANNEXURE 1</a>
+    <a href="annex2.html">📊 ANNEXURE 2</a>
+    <a href="annex3.html" class="active">📝 ANNEXURE 3</a>
+</nav>
+<marquee direction="left" style="color:white; font-size:15px; font-weight:bold; background:black;" >Annexure-2 और Annexure-3 केवल डाटा भरने पर ही दिखाई देगा । डाटा भरने के लिए Master पेज का इस्तमाल करें</marquee>
+<div style="text-align:center; padding:10px;">
+    <button onclick="window.print()" style="padding:8px 20px; font-weight:bold; cursor:pointer; background:#2980b9; color:white; border:none; border-radius:5px; font-size:14px;">🖨️</button>
+</div>
+
+<div id="content"></div>
+
+<script>
+    function setLogo(img, base) {
+        const exts = ['png', 'jpg', 'jpeg'];
+        let i = 0;
+        function tryNext() { if (i >= exts.length) return; img.src = base + "." + exts[i++]; img.onerror = tryNext; }
+        tryNext();
+    }
+
+    window.onload = function() {
+        const d = JSON.parse(localStorage.getItem('vse_master')) || {};
+        const students = JSON.parse(localStorage.getItem('vse_students')) || [];
+        
+        const fullSch = d.code ? `${d.sch} (Code: ${d.code})` : d.sch; 
+        const udise = d.uds || "";
+
+        let html = "";
+        const studentsPerPage = 14; 
+
+        for (let i = 0; i < students.length; i += studentsPerPage) {
+            let chunk = students.slice(i, i + studentsPerPage);
+            
+            // Student Rows
+            let rows = chunk.map((s, idx) => `
+                <tr class="student-row">
+                    <td>${i + idx + 1}</td>
+                    <td>${s.a}</td>
+                    <td>${s.r}</td>
+                    <td style="text-align:left; padding-left:5px;">${s.n}</td>
+                    <td style="text-align:left; padding-left:5px;">${s.f}</td>
+                    <td></td> </tr>
+            `).join('');
+
+            // Fill empty rows
+            while (chunk.length < studentsPerPage && students.length > 0) {
+                 chunk.push({});
+                 rows += `<tr class="student-row"><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
+                 if(chunk.length >= studentsPerPage) break;
+            }
+
+            html += `
+            <div class="page">
+                <div class="header-row">
+                    <img class="logo-img log-s">
+                    <div style="flex-grow:1;"></div>
+                    <img class="logo-img log-n">
+                </div>
+                
+                <div class="annex-title">Annexure – 3</div>
+                
+                <div class="box-title">Attendance Sheet for Practical Assessment under VSE Rajasthan: ${d.sess || '2025-26'}</div>
+                <div class="sub-header">Board of Secondary Education, Rajasthan</div>
+
+                <div class="info-container">
+                    <div class="row-1">
+                        <div style="width:40%;">Exam. Centre (School) UDISE Code: <span style="font-weight:normal;">${udise}</span></div>
+                        <div style="width:60%; text-align:right;">Exam. Centre (School) Name: <span style="font-weight:normal;">${fullSch}</span></div>
+                    </div>
+                    
+                    <div class="row-2">
+                        <div style="width:20%;">Date: <span style="font-weight:normal;">${d.date}</span></div>
+                        <div style="width:20%;">Sector: <span style="font-weight:normal;">${d.sect}</span></div>
+                        <div style="width:20%;">Class/Std.: <span style="font-weight:normal;">${d.class}</span></div>
+                        <div style="width:20%; text-align:right;">Level: <span style="font-weight:normal;">${d.lvl}</span></div>
+                    </div>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="col-sl">Sl.<br>No.</th>
+                            <th class="col-id">Student ID 1<br>(AADHAAR no)</th>
+                            <th class="col-id">Student ID 2<br>(Registration no)</th>
+                            <th class="col-name">Name of Student</th>
+                            <th class="col-father">Father's Name</th>
+                            <th class="col-sig">Signature of Student</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows}
+                    </tbody>
+                </table>
+
+                <div class="footer-section">
+                    <div class="footer-row">
+                        <div style="width:40%;">Name of Assessor: ${d.asr || ''}</div>
+                        <div style="width:40%; text-align:right;">Sign. of Assessor: __________________</div>
+                    </div>
+                    
+                    <div class="footer-row">
+                        <div style="width:40%;">Contact no.: ${d.cnt || ''}</div>
+                        <div style="width:40%; text-align:right;">E-mail id: ${d.email || ''}</div>
+                    </div>
+
+                    <div class="principal-row">
+                        <div>Sign. Of Principal / In-Charge / Internal Examiner (with seal): __________________________</div>
+                    </div>
+                </div>
+            </div>`;
+        }
+        
+        document.getElementById('content').innerHTML = html;
+
+        setTimeout(() => {
+            document.querySelectorAll('.log-s').forEach(img => setLogo(img, 'samagra_logo'));
+            document.querySelectorAll('.log-n').forEach(img => setLogo(img, 'nsdc_logo'));
+        }, 100);
+    };
+</script>
+</body>
+</html>

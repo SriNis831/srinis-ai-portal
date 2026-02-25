@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <title>SriNis AI Vocational Attandance Form(V2.5)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- VARIABLES --- */
+        :root {
+            --primary-color: #ff6b35;
+            --secondary-color: #2c2c2c;
+            --btn-grad-1: #ff6b35; --btn-grad-2: #ff9f43;
+            --border-color: #ff6b35;
+            --input-bg: #e3f2fd;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans Devanagari', sans-serif;
+            background: var(--secondary-color);
+            margin: 0; padding: 20px;
+            font-size: 13px; font-weight: 500;
+        }
+
+        /* --- PAGE CONTAINER --- */
+        .page {
+            width: 210mm; 
+            min-height: 297mm;
+            background: white;
+            margin: 0 auto 20px auto; padding: 10mm;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            position: relative; overflow: hidden;
+            border-top: 5px solid var(--border-color);
+        }
+
+        /* --- WATERMARK --- */
+        .page::before {
+            content: 'SriNis AI'; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 130px;
+            text-transform: uppercase; white-space: nowrap;
+            background: linear-gradient(135deg, var(--btn-grad-1) 0%, var(--btn-grad-2) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(2px 2px 5px rgba(0,0,0,0.1));
+            opacity: 0.07; pointer-events: none; z-index: 0; display: none;
+        }
+        .show-watermark .page::before { display: block; }
+
+        /* --- PRINT SETTINGS --- */
+        @media print {
+            @page { size: A4; margin: 0; }
+            body, html { margin: 0 !important; padding: 0 !important; background: white !important; height: 100%; width: 100%; }
+            #section-part-a, #part-b-section { margin: 0 !important; padding: 0 !important; border: none !important; }
+            #part-b-section.hidden-section { display: none !important; }
+            .page { 
+                margin: 0 !important; border: none !important; box-shadow: none !important; outline: none !important; width: 100% !important;
+                height: 296mm !important; overflow: hidden; display: block; page-break-after: always !important; break-after: page !important;
+                padding: 10mm !important; box-sizing: border-box;
+            }
+            #section-part-a .page:last-of-type, #part-b-section:not(.hidden-section) .page:last-of-type { page-break-after: auto !important; break-after: auto !important; }
+            .no-print, .control-panel, .hidden-section { display: none !important; }
+            input, textarea, select { border: none !important; background: transparent !important; font-size: 11pt; }
+            .line-input { border-bottom: 1px solid #000 !important; }
+            select { appearance: none; -webkit-appearance: none; }
+        }
+
+        /* --- INPUTS & TABLES --- */
+        input[type="text"], input[type="number"], input[type="date"], input[type="email"], select {
+            font-family: 'Noto Sans Devanagari', sans-serif; font-weight: 600;
+            border: 1px solid #ccc; text-align: center; width: 100%;
+            background: var(--input-bg); font-size: 12px; padding: 1px; outline: none; height: 24px; border-radius: 3px;
+        }
+        textarea {
+            font-family: 'Noto Sans Devanagari', sans-serif; font-size: 11px; font-weight: 600;
+            width: 100%; border: 1px solid #ccc; background: var(--input-bg);
+            resize: none; overflow: hidden; min-height: 22px; text-align: center; padding-top: 2px; border-radius: 3px;
+        }
+        input.line-input {
+            border: none !important; border-bottom: 1px dotted #000 !important; background: transparent !important;
+            border-radius: 0 !important; text-align: left !important; padding-left: 10px !important; font-weight: 700; height: 20px !important; box-shadow: none !important;
+        }
+        table.main-table { width: 100%; border-collapse: collapse; margin-top: 5px; table-layout: fixed; }
+        table.main-table th, table.main-table td { border: 1px solid #000; padding: 3px 2px; text-align: center; vertical-align: middle; font-size: 12px; word-wrap: break-word; }
+        table.main-table th { background: #f0f0f0; font-weight: 700; height: 28px; }
+
+        .sunday-cell { background-color: #ffffcc !important; color: red !important; font-weight: 900 !important; }
+        .invalid-day { background-color: #ddd !important; }
+        .status-p { color: green !important; font-weight: 900 !important; }
+        .status-ab { color: red !important; font-weight: 900 !important; }
+        .status-l { color: orange !important; font-weight: 900 !important; }
+        .status-h { color: blue !important; font-weight: 900 !important; }
+        .status-ph { color: purple !important; font-weight: 900 !important; }
+        .att-input { text-transform: uppercase; font-family: Arial, sans-serif !important; font-weight: bold; letter-spacing: 1px; }
+
+        .compact-table th, .compact-table td { padding: 1px 2px; font-size: 11px; height: 22px; }
+        .compact-table textarea { min-height: 18px; font-size: 11px; }
+        h3 { text-align: center; margin: 0 0 15px 0; text-decoration: underline; font-weight: 700; font-size: 16px; color: black; }
+        
+        .spaced-row { margin-bottom: 15px; display: flex; align-items: flex-end; font-size: 14px; }
+        .form-label { font-weight: 600; margin-right: 5px; white-space: nowrap; } 
+        .form-field { flex-grow: 1; }
+
+        /* --- CONTROL PANEL --- */
+        .control-panel {
+            position: sticky; top: 0; z-index: 999; background: #1a1a1a; color: white; padding: 8px; 
+            text-align: center; border-bottom: 4px solid var(--border-color);
+            display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap;
+        }
+        .btn-print { padding: 6px 20px; font-weight: bold; color: white; border: none; border-radius: 50px; cursor: pointer; background: linear-gradient(45deg, var(--btn-grad-1), var(--btn-grad-2)); }
+        
+        /* Email Button Style */
+        .btn-email {
+            padding: 6px 20px; font-weight: bold; color: white; border: none; border-radius: 50px; cursor: pointer; 
+            background: linear-gradient(45deg, #1abc9c, #16a085);
+            display: flex; align-items: center; gap: 5px;
+        }
+        .btn-email:hover { transform: scale(1.05); box-shadow: 0 0 10px rgba(26, 188, 156, 0.5); }
+
+        .btn-home {
+            text-decoration: none; color: white; background: #333; border: 1px solid #555;
+            padding: 6px 15px; border-radius: 50px; font-weight: bold; transition: 0.3s; display: flex; align-items: center; gap: 5px;
+        }
+        .btn-home:hover { background: var(--primary-color); border-color: var(--primary-color); color: white; }
+
+        .switch-container { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: bold; color: #ccc; }
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #555; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary-color); } input:checked + .slider:before { transform: translateX(20px); }
+
+        .split-cell { display: flex; flex-direction: column; gap: 2px; height: 100%; justify-content: center; }
+        .count-box { height: 20px !important; border: none !important; border-bottom: 1px dashed #999 !important; background: transparent !important; font-weight: 800; font-size: 14px; }
+        .date-box { min-height: 20px !important; border: none !important; background: transparent !important; font-size: 10px; line-height: 1.1; }
+        .op-bal-input { width: 50px !important; background: #333 !important; color: white !important; border: 1px solid #555 !important; border-radius: 5px; font-weight: bold; }
+
+        .hidden-section { display: none; }
+        .srinis-logo-text { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 22px; text-transform: uppercase; background: linear-gradient(135deg, var(--btn-grad-1) 0%, var(--btn-grad-2) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .big-checkbox { transform: scale(1.5); cursor: pointer; }
+    </style>
+    
+    <script>
+        function applyRandomTheme() {
+            const themes = [{c:'#FF9933',g1:'#FF9933',g2:'#FF7722',bg:'#fff3e0'}, {c:'#3498db',g1:'#3498db',g2:'#2980b9',bg:'#e3f2fd'}, {c:'#2ecc71',g1:'#2ecc71',g2:'#27ae60',bg:'#e8f5e9'}, {c:'#ff4757',g1:'#ff4757',g2:'#ff6b81',bg:'#ffebee'}, {c:'#9b59b6',g1:'#9b59b6',g2:'#8e44ad',bg:'#f3e5f5'}, {c:'#00d2d3',g1:'#00d2d3',g2:'#01a3a4',bg:'#e0f7fa'}];
+            const t = themes[Math.floor(Math.random() * themes.length)];
+            const r = document.documentElement.style;
+            r.setProperty('--primary-color', t.c); r.setProperty('--border-color', t.c); r.setProperty('--btn-grad-1', t.g1); r.setProperty('--btn-grad-2', t.g2); r.setProperty('--input-bg', t.bg);
+        }
+
+        function autoResize(textarea) { textarea.style.height = 'auto'; textarea.style.height = textarea.scrollHeight + 'px'; }
+        function toggleWatermark() { document.body.classList.toggle('show-watermark', document.getElementById('wm-toggle').checked); }
+        function togglePartB() {
+            const chk = document.getElementById('part-b-toggle');
+            const sec = document.getElementById('part-b-section');
+            if(chk.checked) sec.classList.remove('hidden-section');
+            else sec.classList.add('hidden-section');
+        }
+
+        function syncData() {
+            const glInputsA = document.querySelectorAll('#table2-container textarea');
+            const glInputsB = document.querySelectorAll('#table15-container .gl-text-sync');
+            glInputsA.forEach((el, idx) => { if(glInputsB[idx]) glInputsB[idx].value = el.value; });
+            const ivInputsA = document.querySelectorAll('#table3-container textarea');
+            const ivInputsB = document.querySelectorAll('#table16-container textarea');
+            ivInputsA.forEach((el, idx) => { 
+                if(ivInputsB[idx]) ivInputsB[idx].value = el.value; 
+                if(el.classList.contains('expense-input')) calcExpenseTotalB();
+            });
+        }
+
+        function calculateSummaryA() {
+            let present=0, absent=0, leave=0, govtHol=0, principalHol=0; let leaveDates=[], govtDates=[], principalDates=[];
+            for(let i=1; i<=31; i++) { 
+                let el = document.getElementById(`d${i}`);
+                let val = el.value.trim().toUpperCase(); 
+                if(!el.readOnly) el.className = 'att-input';
+                if(val==='P') { present++; el.classList.add('status-p'); }
+                else if(val==='AB') { absent++; el.classList.add('status-ab'); }
+                else if(val==='L') { leave++; leaveDates.push(i); el.classList.add('status-l'); }
+                else if(val==='H') { govtHol++; govtDates.push(i); el.classList.add('status-h'); }
+                else if(val==='PH') { principalHol++; principalDates.push(i); el.classList.add('status-ph'); } 
+            }
+            let working = present + absent + leave;
+            document.getElementById('totalWorking').value = working; document.getElementById('totalPresent').value = present; document.getElementById('totalAbsent').value = absent;
+            document.getElementById('cntLeave').value = (leave>0?leave:""); document.getElementById('cntGovt').value = (govtHol>0?govtHol:""); document.getElementById('cntPH').value = (principalHol>0?principalHol:"");
+            document.getElementById('totalLeaveDates').value = leaveDates.join(", "); document.getElementById('totalGovtDates').value = govtDates.join(", "); document.getElementById('totalPrincipalDates').value = principalDates.join(", ");
+            let openBal = parseFloat(document.getElementById('openBalance').value) || 0;
+            let currentBal = openBal - leave;
+            document.getElementById('finalBalance').value = currentBal;
+            document.getElementById('finalBalance').style.color = (currentBal < 0) ? "red" : "black";
+        }
+        
+        function calcExpenseA() {
+            let total = 0; document.querySelectorAll('#table3-container .expense-input').forEach(i => total += (parseFloat(i.value)||0));
+            document.getElementById('totalExpenseA').value = total > 0 ? total + "/-" : "";
+            syncData();
+        }
+
+        function updateCalendar() {
+            const m = parseInt(document.getElementById('selMonth').value), y = parseInt(document.getElementById('selYear').value);
+            document.getElementById('dispMonth').value = document.getElementById('selMonth').options[document.getElementById('selMonth').selectedIndex].text;
+            document.getElementById('dispYear').value = y;
+            const days = new Date(y, m+1, 0).getDate();
+            for(let i=1; i<=31; i++) {
+                const el = document.getElementById(`d${i}`); 
+                el.value=""; el.className="att-input"; el.disabled=false; el.readOnly=false; el.style.backgroundColor="";
+                if(i>days) { el.value="X"; el.classList.add('invalid-day'); el.disabled=true; el.style.backgroundColor="#ddd"; }
+                else if(new Date(y, m, i).getDay()===0) { el.value="S"; el.classList.add('sunday-cell'); el.readOnly=true; el.style.backgroundColor="#ffffcc"; }
+            }
+            calculateSummaryA();
+        }
+        function handleInputA(el) { el.value = el.value.toUpperCase(); calculateSummaryA(); }
+
+        function calcStudentTotals() {
+            ['t10', 't11'].forEach(tbl => {
+                ['9','10','11','12'].forEach(cls => {
+                    let m = parseFloat(document.getElementById(tbl+'_'+cls+'m').value)||0;
+                    let f = parseFloat(document.getElementById(tbl+'_'+cls+'f').value)||0;
+                    document.getElementById(tbl+'_'+cls+'t').value = (m+f)|| "";
+                });
+            });
+        }
+        function calcExpenseTotalB() {
+            let total = 0; document.querySelectorAll('#table16-container .expense-input').forEach(i => total += (parseFloat(i.value)||0));
+            document.getElementById('totalExpenseB').value = total > 0 ? total + "/-" : "";
+        }
+
+        // --- NEW EMAIL FUNCTIONALITY ---
+        function sendEmail() {
+            // 1. Get User Email
+            let userEmail = prompt("अपना ईमेल पता दर्ज करें (Enter your Email ID):", "");
+            if (!userEmail) return;
+
+            // 2. Alert User to Save PDF first
+            alert("महत्वपूर्ण: \n\n1. अब प्रिंट विंडो खुलेगी।\n2. 'Save as PDF' चुनें और फाइल सेव करें।\n3. इसके बाद आपका ईमेल ऐप खुलेगा, वहां यह फाइल 'Attach' करके सेंड करें।");
+
+            // 3. Trigger Print (Save to PDF)
+            window.print();
+
+            // 4. Open Email Client with Subject & Body (After a short delay)
+            setTimeout(() => {
+                let subject = "Vocational Attendance Report - " + document.getElementById('dispMonth').value + " " + document.getElementById('dispYear').value;
+                let body = "Please find the attached Vocational Attendance Report for the month.";
+                window.location.href = `mailto:${userEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            }, 1000);
+        }
+    </script>
+</head>
+<body onload="initForm(); applyRandomTheme()">
+
+<div class="no-print control-panel">
+    <div class="srinis-logo-container"><span class="srinis-logo-text">SriNis AI</span></div>
+    <a href="index.html" class="btn-home">🏠 Home</a>
+    
+    <div class="switch-container" style="border: 1px solid #555; padding: 2px 8px; border-radius: 20px;">
+        <span style="color: #fff;">Show VC Report</span>
+        <label class="switch"><input type="checkbox" id="part-b-toggle" onchange="togglePartB()"><span class="slider round"></span></label>
+    </div>
+    <div class="switch-container"><span>WaterMark</span><label class="switch"><input type="checkbox" id="wm-toggle" onchange="toggleWatermark()"checked><span class="slider round"></span></label></div>
+    <div class="switch-container"><span>Available Leaves</span><input type="number" id="openBalance" class="op-bal-input" value="0" onchange="calculateSummaryA()"></div>
+    
+    <div style="font-size: 14px; background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2);">
+        <select id="selMonth" onchange="updateCalendar()" style="padding: 2px; background: transparent; color:white; border:none; font-weight:bold;">
+        <option value="0" Selected style="color:black">January</option>
+        <option value="1" style="color:black">Febuary</option>
+        <option value="2" style="color:black">March</option>
+        <option value="3" style="color:black">April</option>
+        <option value="4" style="color:black">May</option>
+        <option value="5" style="color:black">June</option>
+        <option value="6" style="color:black">July</option>
+        <option value="7" style="color:black">Auguest</option>
+        <option value="8" style="color:black">September</option>
+        <option value="9" style="color:black">October</option>
+        <option value="10" style="color:black">November</option>
+        <option value="11" style="color:black">December</option></select>
+        <input type="number" id="selYear" value="2026" onchange="updateCalendar()" style="width: 50px; background: transparent; color:white; border:none; font-weight:bold; text-align:center;">
+    </div>
+    
+    <button onclick="applyRandomTheme()" style="padding: 8px; background: #333; border: 1px solid #555; color: #fff; border-radius: 50%; cursor: pointer;">🎨</button>
+    <button onclick="window.print()" class="btn-print">🖨️ Print</button>
+    <button onclick="sendEmail()" class="btn-email">📧 Email PDF</button>
+
+<br> <marquee direction="left" style="color:white; font-size:15px; font-weight:bold; background:black;" >हिंदी और अंग्रेजी में टाईपिंग के लिए Google Input Tools  के साथ कीबोर्ड पर Alt+Shift बटन एक साथ दबाएं या आप WindowsKey+Spacebar का भी इस्तेमाल कर सकते हैं।</marquee>
+</div>
+
+<div id="section-part-a">
+    <div class="page">
+        <h3>व्यावसायिक प्रशिक्षक उपस्थिति प्रमाण पत्र-अ</h3>
+        <table class="header-table"><tr><td colspan="4"><span class="label">विद्यालय का नाम:-</span><input type="text" value="" style="width: 70%; text-align: left; font-weight: 700;"></td></tr>
+        <tr>
+        <td style="width: 25%;"><span class="label">ब्लॉक:</span><input type="text" value="" style="width: 60%; text-align: left;"></td>
+        <td style="width: 25%;"><span class="label">जिला:</span><input type="text" value="" style="width: 60%; text-align: left;"></td>
+        <td colspan="2" style="width: 50%;"><span class="label">दूरभाष नम्बर:</span><input type="text" style="width: 65%; text-align: left;"></td></tr>
+        <tr><td colspan="4"><span class="label">मेल आईडी:</span><input type="text" style="width: 80%; text-align: left;"></td></tr></table>
+        <div style="text-align: justify; margin-top: 10px; line-height: 2.2; font-size: 14px; color: black; font-weight: 500;">प्रमाणित किया जाता है कि माह <input type="text" id="dispMonth" style="width: 80px; display: inline-block;" readonly> वर्ष <input type="text" id="dispYear" style="width: 50px; display: inline-block;" readonly> में व्यावसायिक शिक्षा के अन्तर्गत विद्यालय में संचालित सेक्टर <input type="text" style="width: 80px; text-align: left; display: inline-block;" value=""> में व्यावसायिक प्रशिक्षण प्रदाता <input type="text" style="width: 250px; text-align: left; display: inline-block; font-weight: 700;" value=""> द्वारा नियोजित व्यावसायिक प्रशिक्षक/गतिविधियों की बिन्दुवार सूचना निम्नानुसार है:-</div>
+        <div style="margin-top: 10px;"><div style="font-weight: 700; margin-bottom: 5px;">1. व्यावसायिक प्रशिक्षक (V.T.) की उपस्थिति निम्नानुसार है:-</div>
+        <table class="main-table" style="margin-bottom: -1px;"><tr><script>for(let i=1; i<=16; i++) document.write(`<th>${i}</th>`)</script></tr><tr><script>for(let i=1; i<=16; i++) document.write(`<td style="height: 22px;"><input type="text" id="d${i}" class="att-input" onkeyup="handleInputA(this)"></td>`)</script></tr></table><table class="main-table"><tr><script>for(let i=17; i<=31; i++) document.write(`<th>${i}</th>`)</script></tr><tr><script>for(let i=17; i<=31; i++) document.write(`<td style="height: 22px;"><input type="text" id="d${i}" class="att-input" onkeyup="handleInputA(this)"></td>`)</script></tr></table></div>
+
+        <div style="margin-top: 10px;" id="table2-container">
+            <div style="font-weight: 700; margin-bottom: 5px;">2. माह में आयोजित गेस्ट लेक्चर का विवरण:-</div>
+            <table class="main-table"><thead><tr><th style="width: 30px;">क्र.</th><th style="width: 40px;">कक्षा</th><th style="width: 50px;">दिनांक</th><th style="width: 50px;">नामांकन</th><th style="width: 70px;">लाभान्वित विद्यार्थियों की संख्या (उपस्थित) </th><th>गेस्ट लेक्चर का विषय/Topic</th><th>विषय विशेषज्ञ नाम</th><th>विषय विशेषज्ञ का पद पदस्थापन व कार्यरत संस्थान</th></tr></thead><tbody>
+                <tr><td>1</td><td><input type="text" value="9" readonly></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td></tr>
+                <tr><td>2</td><td><input type="text" value="10" readonly></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td></tr>
+                <tr><td>3</td><td><input type="text" value="11" readonly></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td></tr>
+                <tr><td>4</td><td><input type="text" value="12" readonly></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td></tr>
+            </tbody></table>
+        </div>
+
+        <div style="margin-top: 10px;" id="table3-container">
+            <div style="font-weight: 700; margin-bottom: 5px;">3. वर्तमान माह तक आयोजित औद्योगिक भ्रमण का विवरण:-</div>
+            <table class="main-table"><thead><tr><th style="width: 50px;">औद्योगिक भ्रमण</th>
+            <th style="width: 60px;">दिनांक</th><th style="width: 45px;">लाभान्वित विद्यार्थियों की संख्या</th>
+            <th>लाभान्वित ईकाई/संस्था का नाम व पता</th><th style="width: 70px;">औद्योगिक भ्रमण पर किया गया व्यय (रु.)</th>
+            <th>विशेष विवरण</th></tr></thead><tbody>
+                <tr><td>प्रथम</td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea class="expense-input" oninput="autoResize(this); calcExpenseA()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td></tr>
+                <tr><td>द्वितीय</td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea class="expense-input" oninput="autoResize(this); calcExpenseA()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td></tr>
+                <tr><td>तृतीय</td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td><td><textarea class="expense-input" oninput="autoResize(this); calcExpenseA()"></textarea></td><td><textarea oninput="autoResize(this); syncData()"></textarea></td></tr>
+                <tr><td colspan="4" style="text-align: right; font-weight: 700; padding-right: 10px;">कुल योग</td><td><input type="text" id="totalExpenseA" readonly></td><td></td></tr>
+            </tbody></table>
+        </div>
+        <div style="position: absolute; bottom: 3mm; right: 10mm; text-align: right;"><p style="font-weight: 700;">हस्ताक्षर</p>
+
+        <p style="font-size: 15px; font-weight: 700;">प्रधानाचार्य</p>
+        <p style="font-size: 11px;">(नाम संस्था प्रधान मय मोबाइल नं.)</p>
+        </div>
+    </div>
+
+    <div class="page">
+        <div><div style="font-weight: 700; margin-bottom: 5px;">4. माह में स्किल नॉलेज फैसिलिटेटर / व्यावसायिक समन्वयक द्वारा की गई गतिविधियों का विवरण :-</div>
+        <table class="main-table"><thead><tr><th style="width:40px">क्र.स</th><th style="width: 90px;">दिनांक</th><th>स्किल नॉलेज फैसिलिटेटर/व्यावसायिक समन्वयक द्वारा विद्यालय में की गई गतिविधियों का विवरण</th></tr></thead><tbody><tr><td>1</td><td><textarea oninput="autoResize(this)"></textarea></td><td><textarea oninput="autoResize(this)" rows="2"></textarea></td></tr><tr><td>2</td><td><textarea oninput="autoResize(this)"></textarea></td><td><textarea oninput="autoResize(this)" rows="2"></textarea></td></tr><tr><td>3</td><td><textarea oninput="autoResize(this)"></textarea></td><td><textarea oninput="autoResize(this)" rows="2"></textarea></td></tr></tbody></table></div>
+        <div style="margin-top: 15px;"><div style="font-weight: 700; margin-bottom: 10px;">5. माह में व्यावसायिक प्रशिक्षक द्वारा की गई गतिविधियों का विवरण:-</div>
+        <table class="noborder-table"><tr><td style="width: 75%; font-weight: 600;">a) प्रायोगिक कार्य हेतु माहवार योजना तैयार की गई है</td><td><textarea oninput="autoResize(this)" style="text-align: center;">हाँ</textarea></td></tr>
+<tr><td style="width: 75%; font-weight: 600;">b) गेस्ट लेक्चर एवं औद्योगिक भ्रमण/ओजेटी हेतु योजना तैयार की गई है</td><td><textarea oninput="autoResize(this)" style="text-align: center;">हाँ</textarea></td></tr>
+<tr><td style="width: 75%; font-weight: 600;">c) पाठ्यक्रम स्थिति-(पूर्ण की जा चुकी ईकाईयों की संख्या)</td><td><textarea oninput="autoResize(this)" style="text-align: left;"></textarea></td></tr><tr>
+<td style="width: 75%; font-weight: 600;">d) नवाचार-(यदि कोई किया गया हो)</td><td><textarea oninput="autoResize(this)" style="text-align: left;"></textarea></td></tr>
+<tr><td style="width: 75%; font-weight: 600;">e) व्यावसायिक शिक्षा योजना के प्रभावी संचालन हेतु किया गया अतिरिक्त प्रयास -</td><td><textarea oninput="autoResize(this)" style="text-align: left;"></textarea></td></tr><tr><td style="width: 75%; font-weight: 600;">f) अन्य-</td><td><textarea oninput="autoResize(this)" style="text-align: left;"></textarea></td></tr></table><p style="margin-top: 15px; font-size: 14px; text-align: justify; line-height: 1.6; font-weight: 500;">व्यावसायिक प्रशिक्षण प्रदाता द्वारा नियोजित व्यावसायिक प्रशिक्षक के समस्त कार्य सन्तोषप्रद रहे है। अतः जिला कार्यालय द्वारा नियमानुसार भुगतान किये जाने की अनुशंसा की जाती है।</p></div>
+        <div><h4 style="margin-top: 20px; border: 1px solid black; display: inline-block; padding: 5px; text-decoration: none; font-size: 15px;">V.T. Attendance Detail for current Month</h4><table class="main-table" style="margin-top: 5px;"><thead><tr><th style="width: 60px;">Total Working Days in School</th><th>Present</th><th>Absent</th><th>On leave<br>(Date)</th><th>Govt.Holiday<br>(Date)</th><th>Principal Power/Other Power Holiday (Date)</th><th>Balance of Leaves</th></tr></thead><tbody><tr style="height: 50px;"><td><input type="text" id="totalWorking" readonly style="font-weight: 700;"></td><td><input type="text" id="totalPresent" readonly style="color:green; font-weight: 700;"></td><td><input type="text" id="totalAbsent" readonly style="color:red; font-weight: 700;"></td><td><div class="split-cell"><input type="text" id="cntLeave" class="count-box" readonly placeholder="0"><textarea id="totalLeaveDates" readonly class="date-box" style="color:orange;" placeholder="Dates"></textarea></div></td><td><div class="split-cell"><input type="text" id="cntGovt" class="count-box" readonly placeholder="0"><textarea id="totalGovtDates" readonly class="date-box" style="color:blue;" placeholder="Dates"></textarea></div></td><td><div class="split-cell"><input type="text" id="cntPH" class="count-box" readonly placeholder="0"><textarea id="totalPrincipalDates" readonly class="date-box" style="color:purple;" placeholder="Dates"></textarea></div></td><td><input type="text" id="finalBalance" readonly style="font-weight: 900; font-size: 15px;"></td></tr></tbody></table></div>
+        <div style="position: absolute; bottom: 8mm; left: 10mm; right: 10mm; display: flex; justify-content: space-between; align-items: flex-end;"><div style="writing-mode: vertical-rl; transform: rotate(180deg); font-size: 12px; font-weight: 700;">(नोट:-यह प्रारूप जुलाई, 2024 से लागू)</div>
+        <div style="text-align: center; width: 250px;"><p style="font-weight: 700;">हस्ताक्षर प्रधानाचार्य</p><br><br>
+        <td style="width: 50%;"><span class="label"></span>Name Of Principle :<input type="text" value="" style="width: 50%;"></td>
+        <br><td style="width: 50%;"><span class="label"></span>Mobile Number :<input type="text" value="" style="width: 50%;"></td>
+        <p style="font-weight: 700;">नाम संस्था प्रधान मय सील</p></div></div>
+    </div>
+</div>
+
+<div id="part-b-section" class="hidden-section">
+    <div class="page">
+        <h3>स्किल नॉलेज फैसिलिटेटर / व्यावसायिक समन्वयक निरीक्षण प्रपत्र–ब</h3>
+        <div style="margin-top: 25px;"> 
+        <div class="spaced-row">
+        <span class="form-label">1. जिले का नाम:</span><div class="form-field"><input type="text" value="" class="inline-input" style="text-align: left;"></div>
+        <span class="form-label">निरीक्षण दिनांक:</span><div class="form-field" style="max-width: 150px;"><input type="date" class="inline-input" ></div></div>
+            <div class="spaced-row"><span class="form-label">2. VTP का नाम:</span><div class="form-field"><input type="text" value="" class="inline-input" style="text-align: left;"></div></div>
+            <div class="spaced-row"><span class="form-label">3. स्किल नॉलेज फैसिलिटेटर/व्यावसायिक समन्वयक का आवंटित जिला मुख्यालय:</span><div class="form-field"><input type="text" value="" class="inline-input" style="text-align: left;"></div></div>
+            <div class="spaced-row"><span class="form-label">4. विद्यालय का नाम:</span><div class="form-field"><input type="text" value="" class="inline-input" style="text-align: left;"></div></div>
+            <div class="spaced-row"><span class="form-label">5. संस्था प्रधान का नाम:</span><div class="form-field"><input type="text" class="inline-input" style="text-align: left;"></div><span class="form-label">मोबाईल:</span><div class="form-field" style="max-width: 150px;"><input type="text" class="inline-input" style="text-align: left;"></div></div>
+            <div class="spaced-row"><span class="form-label">6. कौशल मित्र (व्यावसायिक शिक्षा) का नाम:</span><div class="form-field"><input type="text" class="inline-input" style="text-align: left;"></div><span class="form-label">मोबाईल:</span><div class="form-field" style="max-width: 150px;"><input type="text" class="inline-input" style="text-align: left;"></div></div>
+            <div class="spaced-row"><span class="form-label">7. निरीक्षण दिवस को व्यावसायिक प्रशिक्षक की उपस्थिति:</span><div class="form-field"><input type="text" class="inline-input" style="text-align: left;"></div></div>
+            <div class="spaced-row"><span class="form-label">8. स्किल नॉलेज फैसिलिटेटर/व्यावसायिक समन्वयक का नाम:</span><div class="form-field"><input type="text" class="inline-input" style="text-align: left;"></div><span class="form-label">मोबाईल:</span><div class="form-field" style="max-width: 150px;"><input type="text" class="inline-input" style="text-align: left;"></div></div>
+            <div class="spaced-row"><span class="form-label">9. विद्यालय में आवंटित/संचालित सेक्टर का नाम:</span><div class="form-field"><input type="text" value="" class="inline-input" style="text-align: left;"></div></div>
+        </div>
+        <div style="margin-top: 20px;"><div style="font-weight: 600; margin-bottom: 5px;">10. व्यावसायिक शिक्षा योजना के अन्तर्गत नामांकित विद्यार्थियों का विवरण ।</div>
+        <table class="main-table std-table"><thead><tr><th rowspan="2" style="width: 15%;">ट्रेड/सेक्टर का नाम</th><th colspan="3">कक्षा 9</th><th colspan="3">कक्षा 10</th><th colspan="3">कक्षा 11</th><th colspan="3">कक्षा 12</th></tr><tr><th>M</th><th>F</th><th>T</th><th>M</th><th>F</th><th>T</th><th>M</th><th>F</th><th>T</th><th>M</th><th>F</th><th>T</th></tr></thead>
+        <tbody><tr><td><input type="text" value=""></td><td><input type="number" id="t10_9m" oninput="calcStudentTotals()"></td><td><input type="number" id="t10_9f" oninput="calcStudentTotals()"></td><td><input type="number" id="t10_9t" readonly style="font-weight:bold; background:#eee;"></td><td><input type="number" id="t10_10m" oninput="calcStudentTotals()"></td><td><input type="number" id="t10_10f" oninput="calcStudentTotals()"></td><td><input type="number" id="t10_10t" readonly style="font-weight:bold; background:#eee;"></td><td><input type="number" id="t10_11m" oninput="calcStudentTotals()"></td><td><input type="number" id="t10_11f" oninput="calcStudentTotals()"></td><td><input type="number" id="t10_11t" readonly style="font-weight:bold; background:#eee;"></td><td><input type="number" id="t10_12m" oninput="calcStudentTotals()"></td><td><input type="number" id="t10_12f" oninput="calcStudentTotals()"></td><td><input type="number" id="t10_12t" readonly style="font-weight:bold; background:#eee;"></td></tr></tbody></table>
+        </div>
+        
+        <div style="margin-top: 15px;"><div style="font-weight: 600; margin-bottom: 5px;">11. निरीक्षण दिवस में विद्यार्थियों की उपस्थिति ।</div><table class="main-table std-table"><thead><tr><th rowspan="2" style="width: 15%;">ट्रेड/सेक्टर का नाम</th><th colspan="3">कक्षा 9</th><th colspan="3">कक्षा 10</th><th colspan="3">कक्षा 11</th><th colspan="3">कक्षा 12</th></tr>
+        <tr><th>M</th><th>F</th><th>T</th><th>M</th><th>F</th><th>T</th><th>M</th><th>F</th><th>T</th><th>M</th><th>F</th><th>T</th></tr></thead>
+        <tbody><tr><td><input type="text" value=""></td><td><input type="number" id="t11_9m" oninput="calcStudentTotals()"></td><td><input type="number" id="t11_9f" oninput="calcStudentTotals()"></td><td><input type="number" id="t11_9t" readonly style="font-weight:bold; background:#eee;"></td><td><input type="number" id="t11_10m" oninput="calcStudentTotals()"></td><td><input type="number" id="t11_10f" oninput="calcStudentTotals()"></td><td><input type="number" id="t11_10t" readonly style="font-weight:bold; background:#eee;"></td><td><input type="number" id="t11_11m" oninput="calcStudentTotals()"></td><td><input type="number" id="t11_11f" oninput="calcStudentTotals()"></td><td><input type="number" id="t11_11t" readonly style="font-weight:bold; background:#eee;"></td><td><input type="number" id="t11_12m" oninput="calcStudentTotals()"></td><td><input type="number" id="t11_12f" oninput="calcStudentTotals()"></td><td><input type="number" id="t11_12t" readonly style="font-weight:bold; background:#eee;"></td></tr></tbody></table></div>
+        <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 15px;">
+    
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <span style="width: 1050px;">12. विद्यार्थियों को छात्र कार्यपुस्तिका की उपलब्धता।</span>
+        <select style="padding: 5px; cursor: pointer;">
+            <option value="">--चुनें--</option>
+            <option value="yes">हाँ</option>
+            <option value="no">नही</option>
+        </select>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <span style="width: 1050px;">13. प्रयोगशाला स्थापित किये जाने हेतु राशि।</span>
+        <select style="padding: 5px; cursor: pointer;">
+            <option value="">--चुनें--</option>
+            <option value="received">प्राप्त</option>
+            <option value="not_received">अप्राप्त</option>
+        </select>
+    </div>
+    
+</div>
+
+
+        <div style="margin-top: 15px;"><div style="font-weight: 600; margin-top: 10px; margin-bottom: 5px;">14. सेक्टर वार प्रयोगशाला की स्थिति</div><table class="main-table">
+        <thead><tr><th style="width: 20%;">सेक्टर-1</th><th>पूर्ण रूप स्थापित</th><th>आंशिक रूप से स्थापित</th><th>स्थापित नहीं</th><th>सामग्री की उपलब्धता <br>प्राप्त/अप्राप्त</th></tr></thead><tbody><tr><td><input type="text" value=""></td><td><input type="checkbox" class="big-checkbox"></td><td><input type="checkbox" class="big-checkbox"></td><td><input type="checkbox" class="big-checkbox"></td><td><input type="checkbox" class="big-checkbox"></td></tr></tbody></table></div>
+        <div style="margin-top: 15px;"><table class="main-table"><thead><tr><th style="width: 20%;">सेक्टर -2</th><th>पूर्ण रूप स्थापित</th><th>आंशिक रूप से स्थापित</th><th>स्थापित नहीं</th><th>सामग्री की उपलब्धता <br>प्राप्त/अप्राप्त</th></tr></thead><tbody><tr><td><input type="text" value=""></td><td><input type="checkbox" class="big-checkbox"></td><td><input type="checkbox" class="big-checkbox"></td><td><input type="checkbox" class="big-checkbox"></td><td><input type="checkbox" class="big-checkbox"></td></tr></tbody></table></div>
+        <div style="position: absolute; bottom: 15mm; left:10mm; right: 10mm; display: flex; justify-content: space-between; align-items: flex-end;"><div style="text-align: left; width: 250px;"><p style="font-weight: 700;">हस्ताक्षर</p><br><p style="font-size: 11px;">स्किल नॉलेज फैसिलिटेटर/व्यावसायिक समन्वयक</p></div><div style="text-align: right; width: 250px;"><p style="font-weight: 700;">हस्ताक्षर</p><br><p style="font-weight: 700;">प्रधानाचार्य</p></div></div>
+    </div>
+
+    <div class="page">
+        <div style="margin-top: 0px;" id="table15-container">
+            <div style="font-weight: 600; margin-bottom: 2px;">15. निरीक्षण दिनांक तक आयोजित कराये गये गेस्ट लेक्चर का विवरण :-</div>
+            <table class="main-table compact-table"><thead><tr><th width="30">क्र.सं.</th><th width="40">कक्षा</th><th width="40">लेक्चर संख्या</th><th width="60">दिनांक</th><th width="50">नामांकन</th><th>लाभान्वित विद्यार्थियों की संख्या (उपस्थित)</th><th>गेस्ट लेक्चर का विषय/Topic</th><th>गेस्ट लेक्चर का स्त्रोत</th></tr></thead><tbody>
+                <tr><td>1</td><td rowspan="2">9</td><td>1</td><td><textarea class="gl-text-sync"></textarea></td><td><textarea class="gl-text-sync"></textarea></td><td><textarea class="gl-text-sync"></textarea></td><td><textarea class="gl-text-sync"></textarea></td><td><select><option>Online</option><option>Offline</option></select></td></tr>
+                <tr><td>2</td><td>2</td><td><textarea class="gl-text-sync"></textarea></td><td><textarea class="gl-text-sync"></textarea></td><td><textarea class="gl-text-sync"></textarea></td><td><textarea class="gl-text-sync"></textarea></td><td><select><option>Online</option><option>Online</option></select></td></tr>
+                <tr><td>3</td><td rowspan="2">10</td><td>3</td><td><textarea class="gl-text-sync"></textarea></td><td><textarea class="gl-text-sync"></textarea></td><td><textarea class="gl-text-sync"></textarea></td><td><textarea class="gl-text-sync"></textarea></td><td><select><option>Online</option><option>Offline</option></select></td></tr>
+                <tr><td>4</td><td>4</td><td><textarea class="gl-text-sync"></textarea></td><td><textarea class="gl-text-sync"></textarea></td><td><textarea class="gl-text-sync"></textarea></td><td><textarea class="gl-text-sync"></textarea></td><td><select><option>Online</option><option>Online</option></select></td></tr>
+                <tr><td>5</td><td rowspan="2">11</td><td>5</td><td><textarea class="gl-text-sync"></textarea></td><td><textarea class="gl-text-sync"></textarea></td><td><textarea class="gl-text-sync"></textarea></td><td><textarea class="gl-text-sync"></textarea></td><td><select><option>Online</option><option>Offline</option></select></td></tr>
+                <tr><td>6</td><td>6</td><td><textarea class="gl-text-sync"></textarea></td><td><textarea class="gl-text-sync"></textarea></td><td><textarea class="gl-text-sync"></textarea></td><td><textarea class="gl-text-sync"></textarea></td><td><select><option>Online</option><option>Online</option></select></td></tr>
+                <tr><td>7</td><td rowspan="2">12</td><td>7</td><td><textarea class="gl-text-sync"></textarea></td><td><textarea class="gl-text-sync"></textarea></td><td><textarea class="gl-text-sync"></textarea></td><td><textarea class="gl-text-sync"></textarea></td><td><select><option>Online</option><option>Offline</option></select></td></tr>
+                <tr><td>8</td><td>8</td><td><textarea class="gl-text-sync"></textarea></td><td><textarea class="gl-text-sync"></textarea></td><td><textarea class="gl-text-sync"></textarea></td><td><textarea class="gl-text-sync"></textarea></td><td><select><option>Online</option><option>Online</option></select></td></tr>
+            </tbody></table>
+        </div>
+
+        <div style="margin-top: 8px;" id="table16-container">
+            <div style="font-weight: 600; margin-bottom: 2px;">16. निरीक्षण दिनांक तक आयोजित औद्योगिक भ्रमण का विवरण:-</div>
+            <table class="main-table compact-table"><thead><tr><th width="50">औद्योगिक भ्रमण</th><th width="85">दिनांक</th><th width="50">लाभान्वित विद्यार्थियों की संख्या</th><th>लाभान्वित ईकाई/संस्था का नाम व पता</th><th width="60">औद्योगिक भ्रमण पर किया गया व्यय (रु.)</th><th>विशेष विवरण</th></tr></thead><tbody>
+                <tr><td>प्रथम</td><td><textarea></textarea></td><td><textarea></textarea></td><td><textarea></textarea></td><td><textarea class="expense-input"></textarea></td><td><textarea></textarea></td></tr>
+                <tr><td>द्वितीय</td><td><textarea></textarea></td><td><textarea></textarea></td><td><textarea></textarea></td><td><textarea class="expense-input"></textarea></td><td><textarea></textarea></td></tr>
+                <tr><td>तृतीय</td><td><textarea></textarea></td><td><textarea></textarea></td><td><textarea></textarea></td><td><textarea class="expense-input"></textarea></td><td><textarea></textarea></td></tr>
+                <tr><td colspan="4" style="text-align:right; padding-right:5px;"><b>कुल योग</b></td><td><input type="text" id="totalExpenseB" readonly></td><td></td></tr>
+            </tbody></table>
+        </div>
+
+        <div style="margin-top: 8px;"><div style="font-weight: 600; margin-bottom: 2px;">17. अन्य गतिविधियाँ व प्रयास:</div><table class="main-table compact-table" style="text-align: left;"><tbody>
+            <tr><td width="30">1</td><td style="text-align: left; padding: 3px;">गेस्ट लेक्चर, औद्योगिक भ्रमण व ओन जॉब ट्रेनिंग की प्रस्तावित माहवार योजना के सम्बन्ध में विवरण</td><td><select><option></option><option>हाँ</option><option>नहीं</option></select></td></tr>
+            <tr><td width="30">2</td><td style="text-align: left; padding: 3px;">लिंकेज स्थापित औद्योगिक ईकाई/संस्थानों का विवरण</td><td><select><option></option><option>हाँ</option><option>नहीं</option></select></td></tr>
+            <tr><td width="30">3</td><td style="text-align: left; padding: 3px;">सैद्धान्तिक व प्रायोगिक पाठ्यक्रम को पूर्ण करने की योजना के सम्बन्ध में</td><td><select><option></option><option>हाँ</option><option>नहीं</option></select></td></tr>
+            <tr><td width="30">4</td><td style="text-align: left; padding: 3px;">गृह कार्य/प्रायोगिक कार्य के निरीक्षण के सम्बन्ध में</td><td><select><option></option><option>हाँ</option><option>नहीं</option></select></td></tr>
+            <tr><td width="30">5</td><td style="text-align: left; padding: 3px;">नवाचार हेतु किये गये कार्य</td><td><select><option></option><option>हाँ</option><option>नहीं</option></select></td></tr>
+            <tr><td width="30">6</td><td style="text-align: left; padding: 3px;">अन्य</td><td><select><option></option><option>हाँ</option><option>नहीं</option></select></td></tr>
+        </tbody></table></div>
+        <br>
+        
+        <div style="position: absolute; bottom: 3mm; left:10mm; right: 10mm; display: flex; justify-content: space-between; align-items: flex-end;"><div style="text-align: left; width: 250px;"><p style="font-weight: 700;">हस्ताक्षर</p><br><p style="font-size: 11px;">स्किल नॉलेज फैसिलिटेटर/व्यावसायिक समन्वयक</p><p style="font-size: 11px;">नाम व मोबाईल नम्बर</p></div>
+        <br><div style="text-align: right; width: 250px;"><p style="font-weight: 700;">हस्ताक्षर</p><br>
+        <p style="font-size: 15px; font-weight: 700;">प्रधानाचार्य</p>
+
+        <p style="font-size: 11px;">(नाम संस्था प्रधान मय मोबाइल नं.)</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    function initForm() { updateCalendar(); }
+</script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <title>Annexure 1 - Bill</title>
+    <style>
+        body { font-family: 'Times New Roman', serif; margin: 0; background: #555; }
+        
+        /* Navigation */
+        nav { background: #2c3e50; padding: 15px; text-align: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+        nav a { color: white; text-decoration: none; padding: 10px 20px; margin: 0 5px; font-weight: bold; border-radius: 5px; font-family: sans-serif; font-size: 14px; }
+        nav a:hover { background: #34495e; }
+        nav a.active { background: #e67e22; }
+
+        /* A4 Page */
+        .page { width: 210mm; min-height: 297mm; padding: 10mm 15mm; margin: 20px auto; background: white; box-sizing: border-box; position: relative; }
+        
+        /* Header */
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 10px; }
+        .logo-img { height: 65px; object-fit: contain; }
+        .title-box { border: 2px solid #000; text-align: center; padding: 6px; font-weight: bold; font-size: 15px; margin-bottom: 12px; text-transform: uppercase; background: #f9f9f9; }
+        
+        /* Layout Rows */
+        .row-line { display: flex; align-items: baseline; margin-bottom: 6px; border-bottom: 1px solid #000; padding-bottom: 2px; font-size: 13.5px; }
+        .lbl { width: 280px; font-weight: bold; color: #000; }
+        .val { flex-grow: 1; padding-left: 10px; font-weight: bold; color: #000; }
+        
+        /* Inputs */
+        .input-line { border: none; border-bottom: 1px dashed #444; width: 100%; outline: none; font-weight: bold; font-family: 'Times New Roman'; font-size: 13.5px; background: #fffde7; }
+        .num-box { width: 60px; text-align: center; border: 1px solid #000; font-weight: bold; font-size: 14px; background: #fffde7; }
+        
+        /* Checkbox Styling (Updated) */
+        .check-box { 
+            width: 16px; height: 16px; border: 1px solid #000; display: inline-block; 
+            margin-right: 5px; position: relative; top: 3px; cursor: pointer;
+            text-align: center; line-height: 16px; font-size: 16px; font-weight: bold;
+            user-select: none;
+        }
+        .check-box:hover { background-color: #eee; }
+
+        .sig-space { border-top: 1.5px solid #000; width: 240px; text-align: center; padding-top: 5px; font-weight: bold; margin-top: 45px; }
+
+        @media print { 
+            nav, button { display: none !important; } 
+            body { background: white; } 
+            .page { margin: 0; border: none; box-shadow: none; } 
+            .input-line, .num-box { background: transparent; border-bottom: none; border: none; } 
+            .num-box { border: 1px solid #000; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="annexure_master.html">🎛️ MASTER</a>
+    <a href="annex1.html" class="active">📄 ANNEXURE 1</a>
+    <a href="annex2.html">📊 ANNEXURE 2</a>
+    <a href="annex3.html">📝 ANNEXURE 3</a>
+</nav>
+
+<div style="text-align:center; padding:15px;">
+    <button onclick="window.print()" style="padding:10px 25px; font-weight:bold; cursor:pointer; background:#2980b9; color:white; border:none; border-radius:5px; font-size:14px;">🖨️</button>
+</div>
+
+<div class="page">
+    <div class="header">
+        <img id="logo1" alt="Samagra" class="logo-img">
+        <h2 style="margin:0; text-decoration: underline; font-size: 26px;">Annexure – 1</h2>
+        <img id="logo2" alt="NSDC" class="logo-img">
+    </div>
+
+    <div class="title-box">Pro-forma Bill: Assessments of Students under VSE, Rajasthan: <span id="sess"></span></div>
+
+    <div class="row-line"><span class="lbl">Session</span><span class="val">: <span id="sess2"></span></span></div>
+    <div class="row-line"><span class="lbl">Sector</span><span class="val">: <span id="sect"></span></span></div>
+    <div class="row-line"><span class="lbl">Class / Std.</span><span class="val">: <span id="class"></span> <span style="margin-left:100px;">Level: <span id="lvl"></span></span></span></div>
+    
+    <div class="row-line"><span class="lbl">Exam Centre Name (In capital)</span><span class="val">: <span id="sch"></span></span></div>
+    <div class="row-line"><span class="lbl">Exam Centre Code</span><span class="val">: <span id="code"></span></span></div>
+    <div class="row-line"><span class="lbl">Exam Centre UDISE Code</span><span class="val">: <span id="uds"></span></span></div>
+    <div class="row-line"><span class="lbl">Sector (In capital)</span><span class="val">: <span id="sect2" style="text-transform:uppercase;"></span></span></div>
+    <div class="row-line"><span class="lbl">Date of Assessment</span><span class="val">: <span id="date"></span></span></div>
+    
+    <div class="row-line">
+        <span class="lbl">Mode of Assessment</span>
+        <span class="val">
+            : <span class="check-box" onclick="toggleCheck(this)"></span> Online 
+              <span class="check-box" style="margin-left:40px;" onclick="toggleCheck(this)"></span> Physical
+        </span>
+    </div>
+
+    <div class="row-line"><span class="lbl">Name of Assessor (In capital)</span><span class="val">: <span id="asr"></span></span></div>
+    <div class="row-line"><span class="lbl">Professional Qualification</span><span class="val">: <input type="text" class="input-line" placeholder="Enter Qualification"></span></div>
+    <div class="row-line"><span class="lbl">Designation</span><span class="val">: Assessor</span></div>
+    <div class="row-line" style="border:none;"><span class="lbl">Office address</span><span class="val">: SHL India Pvt. Ltd. Second Floor, Tower C</span></div>
+    <div class="row-line" style="margin-top:-5px;"><span class="lbl"></span><span class="val" style="padding-left:10px;">DLF Infinity Towers, Cyber City, Phase II, Gurgaon 122002</span></div>
+    <div class="row-line"><span class="lbl">Contact Number</span><span class="val">: <span id="cnt"></span></span></div>
+    <div class="row-line"><span class="lbl">Name of Internal Examiner</span><span class="val">: <input type="text" class="input-line" placeholder="Enter Internal Examiner Name"></span></div>
+
+    <hr style="border-top:2px solid #000; margin:15px 0;">
+
+    <div class="row-line"><span class="lbl" style="width:320px;">Total number of students allowed to appear</span><span class="val">: <input type="number" id="p1_allow" class="num-box" value="0" oninput="calc()"> (Words: <span id="w_allow">ZERO</span>)</span></div>
+    <div class="row-line"><span class="lbl" style="width:320px;">Total number of students assessed</span><span class="val">: <input type="number" id="p1_assess" class="num-box" value="0" oninput="calc()"> (Words: <span id="w_assess">ZERO</span>)</span></div>
+    <div class="row-line"><span class="lbl" style="width:320px;">Total number students absent</span><span class="val">: <span id="p1_absent" style="margin-left:22px; font-weight:bold; display:inline-block; width:40px;">0</span> (Words: <span id="w_absent">ZERO</span>)</span></div>
+
+    <div style="text-align:center; font-weight:bold; text-decoration:underline; margin-top:25px; font-size:14px;">DECLARATION BY ASSESSOR</div>
+    <div style="font-size:12px; font-weight:bold; text-align:justify; margin-top:5px; line-height:1.3;">THE ABOVE DETAILS ARE CORRECT AS PER MY KNOWLEDGE AND BELIEF. THE NUMBER OF STUDENTS INDICATED ABOVE ARE ASSESSED BY ME AT THE SCHOOL.</div>
+    <div class="sig-space">Signature of Assessor</div>
+    <div style="display:flex; justify-content:space-between; margin-top:5px; font-weight:bold; font-size:13px;">
+        <div>Date: <span id="date2"></span></div>
+        <div>Place: <span class="sch-short"></span></div>
+    </div>
+
+    <div style="text-align:center; font-weight:bold; text-decoration:underline; margin-top:35px; font-size:14px;">DECLARATION BY PRINCIPAL / INTERNAL EXAMINER</div>
+    <div style="font-size:12px; font-weight:bold; text-align:justify; margin-top:5px; line-height:1.3;">I HAVE RECEIVED THE ATTENDANCE SHEET. THE ASSESSMENTS WERE CONDUCTED UNDER SUPERVISION.</div>
+    <div class="sig-space" style="width:380px;">Signature of Principal / In-Charge (with seal)</div>
+    <div style="display:flex; justify-content:space-between; margin-top:5px; font-weight:bold; font-size:13px;">
+        <div>Date: <span id="date3"></span></div>
+        <div>Place: <span class="sch-short"></span></div>
+    </div>
+</div>
+
+<script>
+    const words = ["ZERO", "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "ELEVEN", "TWELVE", "THIRTEEN", "FOURTEEN", "FIFTEEN", "SIXTEEN", "SEVENTEEN", "EIGHTEEN", "NINETEEN"];
+    const tens = ["", "", "TWENTY", "THIRTY", "FORTY", "FIFTY"];
+    
+    function getWords(n) { if (n < 20) return words[n]; return tens[Math.floor(n/10)] + (n%10 > 0 ? " " + words[n%10] : ""); }
+
+    function setLogo(id, base) {
+        const img = document.getElementById(id);
+        const exts = ['png', 'jpg', 'jpeg'];
+        let i = 0;
+        function tryNext() { if (i >= exts.length) return; img.src = base + "." + exts[i++]; img.onerror = tryNext; }
+        tryNext();
+    }
+
+    // New Function for Ticking Checkbox
+    function toggleCheck(el) {
+        if (el.innerText === "✓") {
+            el.innerText = "";
+        } else {
+            // Optional: Uncomment below line if you want only one to be selected at a time
+            // document.querySelectorAll('.check-box').forEach(box => box.innerText = ""); 
+            el.innerText = "✓";
+        }
+    }
+
+    window.onload = function() {
+        setLogo('logo1', 'samagra_logo');
+        setLogo('logo2', 'nsdc_logo');
+
+        const d = JSON.parse(localStorage.getItem('vse_master')) || {};
+        const students = JSON.parse(localStorage.getItem('vse_students')) || [];
+        
+        if(d.sess) { document.getElementById('sess').innerText = d.sess; document.getElementById('sess2').innerText = d.sess; }
+        if(d.sect) { document.getElementById('sect').innerText = d.sect; document.getElementById('sect2').innerText = d.sect.toUpperCase(); }
+
+        const ids = ['class','lvl','uds','date','date2','date3','asr','cnt','code','sch'];
+        ids.forEach(i => { if(document.getElementById(i)) document.getElementById(i).innerText = d[i] || ''; });
+        
+        document.querySelectorAll('.sch-short').forEach(e => e.innerText = d.sch);
+
+        document.getElementById('p1_allow').value = students.length;
+        document.getElementById('p1_assess').value = students.length;
+        calc();
+    };
+
+    function calc() {
+        const al = parseInt(document.getElementById('p1_allow').value) || 0;
+        const as = parseInt(document.getElementById('p1_assess').value) || 0;
+        const ab = Math.max(0, al - as);
+        document.getElementById('p1_absent').innerText = ab;
+        document.getElementById('w_allow').innerText = getWords(al);
+        document.getElementById('w_assess').innerText = getWords(as);
+        document.getElementById('w_absent').innerText = getWords(ab);
+    }
+</script>
+</body>
+</html>

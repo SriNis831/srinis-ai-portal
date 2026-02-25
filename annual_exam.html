@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SriNis AI - Smart Vocational Download Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- VARIABLES --- */
+        :root {
+            --primary-color: #27ae60; --secondary-color: #2c2c2c;
+            --btn-grad-1: #2ecc71; --btn-grad-2: #27ae60;
+            --border-color: #27ae60; --input-bg: #e8f5e9;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans Devanagari', sans-serif; background: var(--secondary-color);
+            margin: 0; padding: 0; padding-bottom: 40px; font-size: 14px; font-weight: 500;
+        }
+
+        /* --- CONTROL PANEL --- */
+        .control-panel {
+            position: sticky; top: 0; z-index: 900; background: #1a1a1a; color: white; padding: 10px; 
+            text-align: center; border-bottom: 2px solid var(--border-color);
+            display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap;
+        }
+
+        .srinis-logo-text { 
+            font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 24px; text-transform: uppercase; 
+            background: linear-gradient(135deg, var(--btn-grad-1) 0%, var(--btn-grad-2) 100%); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+        }
+
+        .btn-home {
+            text-decoration: none; color: white; background: #333; border: 1px solid #555;
+            padding: 6px 15px; border-radius: 50px; font-weight: bold; transition: 0.3s; display: flex; align-items: center; gap: 5px;
+        }
+        .btn-home:hover { background: var(--primary-color); border-color: var(--primary-color); color: white; }
+
+        .switch-container { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: bold; color: #ccc; }
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #555; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary-color); } input:checked + .slider:before { transform: translateX(20px); }
+
+        .op-bal-input { width: 70px !important; background: #333 !important; color: white !important; border: 1px solid #555 !important; border-radius: 5px; font-weight: bold; text-align: center; padding: 2px;}
+
+        .marquee-container { background: black; padding: 4px 0; border-bottom: 3px solid var(--border-color); }
+
+        /* --- PAGE CONTAINER --- */
+        .page {
+            width: 95%; max-width: 1050px; background: white; color: black;
+            margin: 30px auto 0 auto; padding: 30px; border-radius: 5px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5); position: relative; overflow: hidden;
+            border-top: 5px solid var(--border-color);
+        }
+
+        .page::before {
+            content: 'SriNis AI'; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 100px;
+            text-transform: uppercase; white-space: nowrap;
+            background: linear-gradient(135deg, var(--btn-grad-1) 0%, var(--btn-grad-2) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            opacity: 0.05; pointer-events: none; z-index: 0; display: none;
+        }
+        .show-watermark .page::before { display: block; }
+
+        h3 { text-align: center; margin: 0 0 25px 0; text-decoration: underline; font-weight: 800; font-size: 22px; color: black; }
+
+        /* --- SUBJECT CARDS (UPDATED FOR DUAL BUTTONS) --- */
+        .subject-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; position: relative; z-index: 1; }
+        
+        .subject-card {
+            background: var(--input-bg); padding: 15px; border-radius: 8px; display: flex; 
+            flex-direction: column; gap: 12px; border: 1px solid #ccc; transition: all 0.3s ease;
+        }
+        .subject-card:hover { border-color: var(--primary-color); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); background: white; }
+        
+        .subject-name { font-size: 16px; font-weight: 800; color: #111; text-align: center; border-bottom: 1px dashed #bbb; padding-bottom: 8px; }
+
+        /* DUAL BUTTON LAYOUT */
+        .action-buttons { display: flex; gap: 10px; width: 100%; }
+        
+        .btn-action {
+            flex: 1; border: none; padding: 8px 5px; border-radius: 5px;
+            font-size: 12px; font-weight: bold; transition: 0.3s; cursor: pointer; outline: none; text-align: center;
+        }
+        .btn-paper { background: linear-gradient(45deg, var(--btn-grad-1), var(--btn-grad-2)); color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .btn-paper:hover { transform: scale(1.05); }
+        
+        .btn-ans { background: #333; color: white; border: 1px solid #555; }
+        .btn-ans:hover { background: var(--primary-color); border-color: var(--primary-color); transform: scale(1.05); }
+
+        .class-section { margin-bottom: 40px; }
+        
+        /* --- CUSTOM POPUP (MODAL) --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px);
+        }
+        .modal-box {
+            background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 400px; width: 90%;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); transform: scale(0.8); transition: 0.3s ease-out;
+            border-top: 8px solid var(--primary-color);
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-overlay.active .modal-box { transform: scale(1); }
+        .modal-icon { font-size: 60px; margin-bottom: 5px; }
+        .modal-title { font-size: 24px; font-weight: 800; color: #000; margin-bottom: 12px; }
+        .modal-text { font-size: 15px; color: #333; margin-bottom: 25px; line-height: 1.6; font-weight: 600; }
+        .modal-btn {
+            background: var(--primary-color); color: white; border: none;
+            padding: 12px 35px; border-radius: 50px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s;
+        }
+        .modal-btn:hover { transform: scale(1.05); }
+
+        /* --- TOAST NOTIFICATION --- */
+        .toast {
+            position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%);
+            background: #27ae60; color: white; padding: 12px 25px; border-radius: 50px;
+            font-weight: bold; font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            transition: 0.4s ease; z-index: 1000; display: flex; align-items: center; gap: 8px;
+        }
+        .toast.show { bottom: 30px; }
+        
+        @media print { .no-print { display: none !important; } body { background: white; } .page { box-shadow: none; border: none; margin: 0; padding: 0; width: 100%; } }
+    </style>
+    
+    <script>
+        function applyRandomTheme() {
+            const themes = [
+                {c:'#2ecc71',g1:'#2ecc71',g2:'#27ae60',bg:'#e8f5e9'}, 
+                {c:'#FF9933',g1:'#FF9933',g2:'#FF7722',bg:'#fff3e0'}, 
+                {c:'#3498db',g1:'#3498db',g2:'#2980b9',bg:'#e3f2fd'}, 
+                {c:'#ff4757',g1:'#ff4757',g2:'#ff6b81',bg:'#ffebee'}, 
+                {c:'#9b59b6',g1:'#9b59b6',g2:'#8e44ad',bg:'#f3e5f5'}  
+            ];
+            const t = themes[Math.floor(Math.random() * themes.length)];
+            const r = document.documentElement.style;
+            r.setProperty('--primary-color', t.c); r.setProperty('--border-color', t.c); 
+            r.setProperty('--btn-grad-1', t.g1); r.setProperty('--btn-grad-2', t.g2); r.setProperty('--input-bg', t.bg);
+            
+            // Update modal top border color dynamically
+            document.querySelector('.modal-box').style.borderTopColor = t.c;
+        }
+
+        function toggleWatermark() { document.body.classList.toggle('show-watermark', document.getElementById('wm-toggle').checked); }
+
+        function filterClass() {
+            const selectedClass = document.getElementById('selClass').value;
+            document.querySelectorAll('.class-section').forEach(section => {
+                section.style.display = (selectedClass === 'all' || section.id === 'sec-' + selectedClass) ? 'block' : 'none';
+            });
+        }
+
+        // ==========================================
+        // 🚀 DUAL SMART DOWNLOADER (PAPER + ANS KEY)
+        // ==========================================
+        function downloadFile(className, subjectCode, subjectName, fileType) {
+            
+            let fileName = "";
+            let typeLabel = "";
+
+            // नाम तय करना (Paper vs Answer Key)
+            if (fileType === 'Paper') {
+                fileName = `Class${className}_${subjectCode}.pdf`; // उदाहरण: Class9_IT.pdf
+                typeLabel = "प्रश्न पत्र (Question Paper)";
+            } else if (fileType === 'Ans') {
+                fileName = `Class${className}_${subjectCode}_Ans.pdf`; // उदाहरण: Class9_IT_Ans.pdf
+                typeLabel = "उत्तर कुंजी (Answer Key)";
+            }
+
+            const filePath = `papers/${fileName}`;
+            showToast(`🔍 ${typeLabel} खोजा जा रहा है...`);
+
+            // सर्वर से फाइल चेक करना
+            fetch(filePath, { method: 'HEAD' })
+                .then(response => {
+                    if (response.ok) {
+                        showToast(`✅ ${subjectName} का ${typeLabel} डाउनलोड हो रहा है...`);
+                        triggerDownload(filePath, fileName);
+                    } else {
+                        showModal(className, subjectName, typeLabel);
+                    }
+                })
+                .catch(error => {
+                    if (window.location.protocol === 'file:') {
+                        alert("⚠️ ऑटो-चेक ऑफलाइन काम नहीं करता। फाइल ऑनलाइन सर्वर पर टेस्ट करें।");
+                    } else {
+                        showModal(className, subjectName, typeLabel);
+                    }
+                });
+        }
+
+        function triggerDownload(url, fileName) {
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function showModal(className, subjectName, typeLabel) { 
+            document.getElementById('modal-subject-name').innerText = `${subjectName} (कक्षा ${className})`;
+            document.getElementById('modal-doc-type').innerText = typeLabel;
+            document.getElementById('custom-modal').classList.add('active'); 
+        }
+        function closeModal() { document.getElementById('custom-modal').classList.remove('active'); }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast-msg');
+            toast.innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+    </script>
+</head>
+<body onload="applyRandomTheme()">
+
+<div class="no-print control-panel">
+    <div class="srinis-logo-container"><span class="srinis-logo-text">SriNis AI</span></div>
+    <a href="index.html" class="btn-home">🏠 Home</a>
+    
+    <div class="switch-container">
+        <span>WaterMark</span>
+        <label class="switch"><input type="checkbox" id="wm-toggle" onchange="toggleWatermark()" checked><span class="slider round"></span></label>
+    </div>
+    
+    <div class="switch-container">
+        <span>Session</span>
+        <input type="text" value="2025-26" class="op-bal-input" readonly>
+    </div>
+    
+    <div style="font-size: 14px; background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2);">
+        <select id="selClass" onchange="filterClass()" style="padding: 2px; background: transparent; color:white; border:none; font-weight:bold; cursor: pointer;">
+            <option value="all" style="color:black" selected>All Classes</option>
+            <option value="9" style="color:black">Class 9</option>
+            <option value="11" style="color:black">Class 11</option>
+            
+        </select>
+    </div>
+    
+    <button onclick="applyRandomTheme()" style="padding: 8px; background: #333; border: 1px solid #555; color: #fff; border-radius: 50%; cursor: pointer;" title="Change Colors">🎨</button>
+</div>
+
+<div class="no-print marquee-container">
+    <marquee direction="left" style="color:white; font-size:15px; font-weight:bold;">
+        प्रश्न पत्र (Question Paper) और उत्तर कुंजी (Answer Key) डाउनलोड करने के लिए विषय (Subject/Trade) के नीचे दिए गए बटन पर क्लिक करें।
+    </marquee>
+</div>
+
+<div class="page">
+    
+    <div id="sec-9" class="class-section">
+        <h3>कक्षा 9 - वार्षिक परीक्षा [ANNUAL EXAMINATION] (2025-26)</h3>
+        <div class="subject-grid">
+            
+            <div class="subject-card">
+                <div class="subject-name">💻 1. IT / ITes</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('9', 'IT', 'IT / ITes', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('9', 'IT', 'IT / ITes', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">🛒 2. Retail (रिटेल)</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('9', 'Retail', 'Retail', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('9', 'Retail', 'Retail', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">🏥 3. Healthcare</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('9', 'Health', 'Healthcare', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('9', 'Health', 'Healthcare', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">💅 4. Beauty & Wellness</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('9', 'Beauty', 'Beauty & Wellness', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('9', 'Beauty', 'Beauty & Wellness', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">🌾 5. Agriculture</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('9', 'Agri', 'Agriculture', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('9', 'Agri', 'Agriculture', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">🚗 6. Automotive</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('9', 'Auto', 'Automotive', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('9', 'Auto', 'Automotive', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">👗 7. Apparel</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('9', 'Apparel', 'Apparel', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('9', 'Apparel', 'Apparel', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">🔧 8. Plumbing</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('9', 'Plumbing', 'Plumbing', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('9', 'Plumbing', 'Plumbing', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">🛡️ 9. Security</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('9', 'Security', 'Security', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('9', 'Security', 'Security', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">✈️ 10. Tourism</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('9', 'Tourism', 'Tourism', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('9', 'Tourism', 'Tourism', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">🔌 11. Electronics</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('9', 'Elec', 'Electronics', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('9', 'Elec', 'Electronics', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">📡 12. Telecom</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('9', 'Telecom', 'Telecom', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('9', 'Telecom', 'Telecom', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">🏦 13. BFSI</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('9', 'BFSI', 'BFSI', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('9', 'BFSI', 'BFSI', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">🏗️ 14. Construction</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('9', 'Const', 'Construction', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('9', 'Const', 'Construction', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">🥫 15. Food Processing</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('9', 'Food', 'Food Processing', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('9', 'Food', 'Food Processing', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <hr style="border: 1px dashed #ccc; margin: 30px 0;">
+
+    <div id="sec-11" class="class-section">
+        <h3>कक्षा 11 - वार्षिक परीक्षा [ANNUAL EXAMINATION] (2025-26)</h3>
+        <div class="subject-grid">
+            
+            <div class="subject-card">
+                <div class="subject-name">💻 1. IT / ITes</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('11', 'IT', 'IT / ITes', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('11', 'IT', 'IT / ITes', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">🛒 2. Retail (रिटेल)</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('11', 'Retail', 'Retail', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('11', 'Retail', 'Retail', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">🏥 3. Healthcare</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('11', 'Health', 'Healthcare', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('11', 'Health', 'Healthcare', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">💅 4. Beauty & Wellness</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('11', 'Beauty', 'Beauty & Wellness', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('11', 'Beauty', 'Beauty & Wellness', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">🌾 5. Agriculture</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('11', 'Agri', 'Agriculture', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('11', 'Agri', 'Agriculture', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">🚗 6. Automotive</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('11', 'Auto', 'Automotive', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('11', 'Auto', 'Automotive', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">👗 7. Apparel</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('11', 'Apparel', 'Apparel', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('11', 'Apparel', 'Apparel', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">🔧 8. Plumbing</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('11', 'Plumbing', 'Plumbing', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('11', 'Plumbing', 'Plumbing', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">🛡️ 9. Security</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('11', 'Security', 'Security', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('11', 'Security', 'Security', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">✈️ 10. Tourism</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('11', 'Tourism', 'Tourism', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('11', 'Tourism', 'Tourism', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">🔌 11. Electronics</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('11', 'Elec', 'Electronics', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('11', 'Elec', 'Electronics', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">📡 12. Telecom</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('11', 'Telecom', 'Telecom', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('11', 'Telecom', 'Telecom', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">🏦 13. BFSI</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('11', 'BFSI', 'BFSI', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('11', 'BFSI', 'BFSI', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">🏗️ 14. Construction</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('11', 'Const', 'Construction', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('11', 'Const', 'Construction', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            <div class="subject-card">
+                <div class="subject-name">🥫 15. Food Processing</div>
+                <div class="action-buttons">
+                    <button class="btn-action btn-paper" onclick="downloadFile('11', 'Food', 'Food Processing', 'Paper')">📄 Paper</button>
+                    <button class="btn-action btn-ans" onclick="downloadFile('11', 'Food', 'Food Processing', 'Ans')">🔑 Ans Key</button>
+                </div>
+            </div>
+
+            </div>
+    </div>
+
+</div>
+
+<div class="modal-overlay no-print" id="custom-modal">
+    <div class="modal-box">
+        <div class="modal-icon">🥺</div>
+        <div class="modal-title">थोड़ा इंतज़ार करें!</div>
+        <div class="modal-text">
+            <b><span id="modal-subject-name" style="color: var(--primary-color);"></span></b> का <br>
+            <span id="modal-doc-type" style="font-weight: 800; background: #eee; padding: 2px 8px; border-radius: 5px;"></span>
+            <br>अभी पोर्टल पर अपलोड नहीं हुआ है। <br><br>हमारी टीम इस पर काम कर रही है!
+        </div>
+        <button class="modal-btn" onclick="closeModal()">ठीक है (OK)</button>
+    </div>
+</div>
+
+<div class="toast no-print" id="toast-msg"></div>
+
+</body>
+</html>
