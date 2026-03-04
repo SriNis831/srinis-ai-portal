@@ -2,7 +2,8 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>SRINIS AI - Vocational Education Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>SRINIS AI - Vocational Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@500;700&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
     
     <style>
@@ -221,91 +222,30 @@
             <p>Manage student data and generate Annexure 1, 2, and 3 for practical assessments.</p>
             <div class="btn-open">Open Dashboard</div>
         </a>
-		
-		<a href="annual_exam.html" class="card">
+        
+        <a href="annual_exam.html" class="card">
             <div class="card-icon">📝</div>
             <h2>Annual Examination 2026</h2>
             <p>Generate, manage, and download annual examination question papers for Class 9 & 11.</p>
-            <div class="btn-open">Exams Papers & AnsKey 2026</div>
+            <div class="btn-open">Exams Papers & AnsKey</div>
+        </a>
+
+        <a href="exam.html" class="card">
+            <div class="card-icon">🪑</div>
+            <h2>Exam Seating Plan</h2>
+            <p>Smartly generate automated room-wise seating arrangements, duty charts, and admit cards.</p>
+            <div class="btn-open">Open Planner</div>
         </a>
     </div>
     
     <div class="tagline" style="font-size: 14px; margin-top: 20px; opacity: 0.7;">
-        Reports, Annexures & Data Management
+        Reports, Annexures, Data & Exam Management
     </div>
-<div style="text-align: center; margin-top: 30px; position: relative;">
-    <div style="width: 50px; height: 2px; background: linear-gradient(90deg, transparent, var(--primary-color), transparent); margin: 0 auto 10px;"></div>
-    
-    <div style="display: inline-flex; align-items: center; gap: 12px; padding: 5px 15px;">
-        <div class="pulse-container">
-            <div class="pulse-dot"></div>
-            <div class="pulse-ring"></div>
-        </div>
-        
-        <span id="visitor-count" style="
-            font-size: 32px; 
-            font-weight: 900; 
-            color: #fff; 
-            font-family: 'Montserrat', sans-serif;
-            text-shadow: 0 0 15px var(--primary-color);
-            letter-spacing: 1px;
-        ">1250</span>
-        
-        <span style="font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 2px; font-weight: bold;"></span>
-    </div>
-    
-    <p style="font-size: 10px; color: #555; margin-top: 5px; font-style: italic;">Updating live Visitors from server...</p>
-</div>
 
-<style>
-    /* Pulse Animation for Unique Look */
-    .pulse-container { position: relative; width: 12px; height: 12px; }
-    .pulse-dot { 
-        width: 10px; height: 10px; background: #2ecc71; border-radius: 50%; 
-        position: absolute; z-index: 2;
-    }
-    .pulse-ring {
-        border: 3px solid #2ecc71; border-radius: 50%;
-        height: 20px; width: 20px;
-        position: absolute; left: -5px; top: -5px;
-        animation: pulse-animation 2s infinite;
-        opacity: 0;
-    }
-    @keyframes pulse-animation {
-        0% { transform: scale(0.5); opacity: 0.8; }
-        100% { transform: scale(2.5); opacity: 0; }
-    }
-</style>
-
-<script>
-    // LocalStorage का उपयोग ताकि आपकी प्रोग्रेस सेव रहे
-    let count = parseInt(localStorage.getItem('srinis_visitor_count')) || 1250;
-
-    function updateDisplay() {
-        document.getElementById('visitor-count').innerText = count.toLocaleString();
-        localStorage.setItem('srinis_visitor_count', count);
-    }
-
-    // ऑटो-इंक्रीमेंट फ़ंक्शन
-    setInterval(function() {
-        let randomIncrement = Math.floor(Math.random() * 2) + 1; 
-        count += randomIncrement;
-        updateDisplay();
-    }, 6000); 
-
-    updateDisplay();
-</script>
     <footer>
         &copy; 2026 SRINIS AI. Developed by SRINIS. All Rights Reserved.<br>
         Optimized for Mobile & Desktop
     </footer>
 
 </body>
-
 </html>
-
-
-
-
-
-
