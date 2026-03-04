@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Management Studio by Srinis AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            margin: 0; 
+            padding: 0;
+            background: linear-gradient(135deg, #eaddff, #fbcfe8); /* Matching your soft pink/purple bg */
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+        }
+
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 { font-size: 3.2rem; color: #1e3a8a; font-weight: 900; margin: 0; letter-spacing: -1px; }
+        .header p { color: #475569; font-size: 1.1rem; font-weight: 600; margin-top: 8px; }
+        
+        .badge { 
+            background: #1e293b; color: #38bdf8; padding: 6px 18px; 
+            border-radius: 50px; font-size: 0.9rem; font-weight: bold; 
+            display: inline-block; margin-top: 15px; 
+        }
+
+        /* The White Container from your image */
+        .card-container {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* The 3D Cards from your image */
+        .card { 
+            text-decoration: none; 
+            width: 200px;
+            border-radius: 16px; 
+            padding: 30px 20px; 
+            text-align: center; 
+            color: #1e293b; 
+            transition: all 0.1s ease; 
+            cursor: pointer; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+        
+        /* Click Effect */
+        .card:active { transform: translateY(4px); border-bottom-width: 2px !important; margin-bottom: 4px;}
+
+        .card-icon { font-size: 3.5rem; margin-bottom: 15px; }
+        .card h3 { margin: 0 0 8px 0; font-size: 1.2rem; font-weight: 800; }
+        .card p { margin: 0; font-size: 0.85rem; color: #64748b; font-weight: 600; line-height: 1.4; }
+
+        /* Specific Colors matching your image exactly */
+        .card.blue { background: #e0f2fe; border-bottom: 6px solid #bae6fd; }
+        .card.green { background: #dcfce7; border-bottom: 6px solid #bbf7d0; }
+        .card.purple { background: #f3e8ff; border-bottom: 6px solid #e9d5ff; }
+        .card.yellow { background: #fef9c3; border-bottom: 6px solid #fde047; }
+
+        .footer { margin-top: 50px; text-align: center; color: #64748b; font-weight: 600; }
+        .footer span { color: #1e3a8a; font-weight: 800; font-size: 1.2rem; }
+
+        /* Blank Sheet Print Styles */
+        #blank-print-area { display: none; }
+        @media print {
+            body * { visibility: hidden; }
+            #blank-print-area, #blank-print-area * { visibility: visible; }
+            #blank-print-area { display: block; position: absolute; left: 0; top: 0; width: 100%; }
+            .blank-table { width: 100%; border-collapse: collapse; margin-top: 20px; text-align: center; }
+            .blank-table th, .blank-table td { border: 1px solid #000; padding: 12px; font-size: 1.1rem; height: 30px; }
+            .blank-table th { background: #f1f5f9 !important; -webkit-print-color-adjust: exact; }
+            @page { margin: 15mm; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Exam Management Studio</h1>
+        <p>Smart, Fast & Error-Free Administration</p>
+        <div class="badge">Version 4.0 Pro ✨</div>
+		<a href="index.html" style="background: #e0f2fe; color: #1e293b; padding: 10px 20px; border-radius: 12px; text-decoration: none; font-weight: bold; border-bottom: 4px solid #bae6fd;">🏠 Main Home</a>
+    </div>
+
+    <div class="card-container">
+        
+        <a href="seating.html" class="card blue">
+            <div class="card-icon">🪑</div>
+            <h3>Seating Plan</h3>
+            <p>Auto Room & Duty Allotment</p>
+        </a>
+
+        <a href="admitcard.html" class="card green">
+            <div class="card-icon">🎫</div>
+            <h3>Admit Cards</h3>
+            <p>1-Click Student ID Cards</p>
+        </a>
+
+        <a href="setup.html" class="card purple">
+            <div class="card-icon">🏫</div>
+            <h3>School Profile</h3>
+            <p>Set Default School & Exam</p>
+        </a>
+
+        <div class="card yellow" onclick="printBlankSheet()">
+            <div class="card-icon">📄</div>
+            <h3>Blank Formats</h3>
+            <p>Print Empty Attendance Sheet</p>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        Powered by <span>✨ Srinis AI</span>
+    </div>
+
+    <div id="blank-print-area">
+        <h2 style="text-align: center; text-transform: uppercase;" id="printSchoolName">SCHOOL/INSTITUTION NAME</h2>
+        <h3 style="text-align: center; text-decoration: underline;">ATTENDANCE SHEET (उपस्थिति पत्रक)</h3>
+        <table style="width: 100%; margin-top: 20px; font-weight: bold;">
+            <tr>
+                <td style="width: 50%;">Exam: .................................................</td>
+                <td style="width: 50%; text-align: right;">Date & Shift: ...................................</td>
+            </tr>
+            <tr>
+                <td colspan="2" style="padding-top: 10px;">Room No: ........................</td>
+            </tr>
+        </table>
+        <table class="blank-table">
+            <thead>
+                <tr>
+                    <th style="width:10%">S.No</th>
+                    <th style="width:30%">Class & Subject</th>
+                    <th style="width:25%">Roll Number</th>
+                    <th style="width:35%">Signature</th>
+                </tr>
+            </thead>
+            <tbody id="blank-tbody"></tbody>
+        </table>
+        <div style="display: flex; justify-content: space-between; margin-top: 50px; font-weight: bold;">
+            <div>Invigilator Sign</div>
+            <div>Center Supdt. Sign</div>
+        </div>
+    </div>
+
+    <script>
+        function printBlankSheet() {
+            // नए मास्टर डेटाबेस से स्कूल का नाम उठाना
+            let db = JSON.parse(localStorage.getItem('examMasterDB'));
+            let schoolName = (db && db.school) ? db.school : "SCHOOL / INSTITUTION NAME";
+            document.getElementById('printSchoolName').innerText = schoolName;
+
+            let tbody = document.getElementById('blank-tbody');
+            tbody.innerHTML = '';
+            for(let i=1; i<=25; i++) {
+                tbody.innerHTML += `<tr><td>${i}</td><td></td><td></td><td></td></tr>`;
+            }
+            window.print();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Data Setup - Srinis AI (Pro Update)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root { --primary: #2563eb; --primary-dark: #1e40af; --success: #059669; --danger: #ef4444; }
+        body { font-family: 'Poppins', sans-serif; margin: 0; padding: 30px; padding-bottom: 100px; background: #f1f5f9; min-height: 100vh; }
+        .container { background: white; max-width: 1000px; margin: 0 auto; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        h2 { color: #1e3a8a; margin-top: 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;}
+        
+        .input-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;}
+        .input-group { display: flex; flex-direction: column; flex: 1; min-width: 200px;}
+        .input-group label { font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 5px; }
+        input, textarea, select { padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 0.95rem; }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; background: #e2e8f0; padding: 5px; border-radius: 10px; }
+        .tab-btn { flex: 1; padding: 10px; text-align: center; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; color: #475569; }
+        .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .mode-section { display: none; }
+        .mode-section.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from {opacity: 0; transform: translateY(10px);} to {opacity: 1; transform: translateY(0);} }
+        
+        /* New Nested Class & Section Styles */
+        .class-box { background: #f8fafc; border: 1px solid #cbd5e1; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .class-header { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; align-items: center; border-bottom: 1px dashed #cbd5e1; padding-bottom: 15px;}
+        .section-row { display: flex; gap: 10px; align-items: center; background: white; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; flex-wrap: wrap; box-shadow: 0 1px 3px rgba(0,0,0,0.02);}
+        
+        button { cursor: pointer; font-family: inherit; font-weight: bold; border: none; transition: 0.2s; }
+        .btn-add-class { background: #0ea5e9; color: white; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; font-size: 1rem; width: 100%;}
+        .btn-add-class:hover { background: #0284c7; }
+        .btn-add-sec { background: #3b82f6; color: white; padding: 8px 15px; border-radius: 6px; font-size: 0.9rem; margin-top: 5px;}
+        .btn-add-sec:hover { background: #2563eb; }
+        .btn-remove { background: var(--danger); color: white; padding: 8px 12px; border-radius: 6px; }
+        .btn-home { background: #475569; color: white; padding: 8px 15px; border-radius: 8px; text-decoration: none; font-size: 0.9rem;}
+        
+        /* Excel Upload Styles */
+        .upload-box { border: 2px dashed #cbd5e1; padding: 30px; text-align: center; border-radius: 12px; background: #f8fafc; cursor: pointer; position: relative;}
+        .upload-box:hover { border-color: var(--primary); background: #eff6ff; }
+        .upload-box input[type="file"] { position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer; }
+        .excel-status { margin-top: 15px; color: var(--success); font-weight: bold; display: none; text-align: center; font-size: 1.1rem; }
+        .format-box { background: #e0f2fe; border: 1px solid #bae6fd; padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>⚙️ Master Data Setup <a href="exam.html" class="btn-home">🏠 Back to Home</a></h2>
+		
+        
+        <h3 style="color: #334155; margin-top: 20px;">🏫 School & Exam Details</h3>
+        <div class="input-row">
+            <div class="input-group"><label>School Name</label><input type="text" id="m_school" placeholder="e.g. Adarsh Vidya Mandir"></div>
+            <div class="input-group"><label>Exam Name</label><input type="text" id="m_exam" placeholder="e.g. Half Yearly Examination 2025-26"></div>
+        </div>
+        <div class="input-row">
+            <div class="input-group"><label>Date</label><input type="text" id="m_date" placeholder="e.g. 15 March 2026"></div>
+            <div class="input-group"><label>Shift/Time</label><input type="text" id="m_shift" placeholder="e.g. Morning Shift (09:00 AM)"></div>
+        </div>
+        
+        <h3 style="color: #334155; margin-top: 30px; border-top: 1px dashed #cbd5e1; padding-top: 20px;">👨‍🏫 Staff Allocation (Duty Roster)</h3>
+        <div class="input-row">
+            <div class="input-group" style="flex: 1;"><label>Exam Incharge (परीक्षा प्रभारी)</label><input type="text" id="m_incharge" placeholder="e.g. Mr. Sharma"></div>
+        </div>
+        <div class="input-row">
+            <div class="input-group">
+                <label>Room Invigilators Pool (सभी वीक्षकों के नाम) - Comma separated</label>
+                <textarea id="m_teachers" rows="2" placeholder="e.g. Amit Sir, Sunita Ma'am, Ramesh Sir..."></textarea>
+            </div>
+        </div>
+
+        <h3 style="color: #334155; margin-top: 30px; border-top: 1px dashed #cbd5e1; padding-top: 20px;">📖 Student Data Entry Mode</h3>
+        
+        <div class="tabs">
+            <div class="tab-btn active" onclick="switchMode('manual', this)">✏️ Manual Range Entry</div>
+            <div class="tab-btn" onclick="switchMode('excel', this)">📊 Excel File Upload (Pro)</div>
+        </div>
+
+        <div id="manual-mode" class="mode-section active">
+            <p style="font-size:0.85rem; color:#64748b; margin-top:0;">* Class Add करें, फिर उस क्लास के अंदर अलग-अलग Sections (A, B, C...) के Roll Numbers भरें।</p>
+            
+            <div id="class-container"></div>
+            
+            <button class="btn-add-class" onclick="addClassBox()">➕ Add New Class</button>
+        </div>
+
+        <div id="excel-mode" class="mode-section">
+            <div class="format-box">
+                <div>
+                    <h4 style="margin: 0 0 5px 0; color: #0284c7; font-size: 1.1rem;">Step 1: Download Excel Format</h4>
+                    <p style="margin: 0; font-size: 0.85rem; color: #475569;">इसमें Section का कॉलम मौजूद है।</p>
+                </div>
+                <button onclick="downloadTemplate()" style="background:#10b981; color:white; padding:10px 20px; border-radius:8px;">📥 Download Format</button>
+            </div>
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 10px;">
+                <h4 style="margin: 0 0 15px 0; color: #334155; font-size: 1.1rem;">Step 2: Upload Filled Excel File</h4>
+                <div class="upload-box">
+                    <div style="font-size: 2.5rem; margin-bottom: 10px;">📂</div>
+                    <h3 style="margin: 0 0 5px 0; color: #1e293b;">Click or Drag your Excel File Here</h3>
+                    <p style="margin: 0; font-size: 0.85rem; color: #64748b;">Supports .xlsx, .xls</p>
+                    <input type="file" id="excelFile" accept=".xlsx, .xls, .csv">
+                </div>
+                <div class="excel-status" id="excelStatus">✅ Excel Loaded Successfully! <br><span id="excelClassCount" style="color:#0284c7;">0</span> Classes Found.</div>
+            </div>
+        </div>
+    </div>
+
+    <div style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 12px 25px; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; gap: 15px; z-index: 1000; border: 1px solid #e2e8f0;">
+        <a href="exam.html" style="background: #e0f2fe; color: #1e293b; padding: 10px 20px; border-radius: 12px; text-decoration: none; font-weight: bold; border-bottom: 4px solid #bae6fd;">🏠 Home</a>
+        <button onclick="saveAndGo()" style="background: #dcfce7; color: #166534; padding: 10px 20px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; border-bottom: 4px solid #bbf7d0; font-family: inherit;">💾 Save & Go to Seating ➔</button>
+		<a href="index.html" style="background: #e0f2fe; color: #1e293b; padding: 10px 20px; border-radius: 12px; text-decoration: none; font-weight: bold; border-bottom: 4px solid #bae6fd;">🏠 Main Home</a>
+		
+    </div>
+
+    <script>
+        let currentMode = 'manual';
+        let excelParsedData = []; 
+        let classIdCounter = 0;
+
+        function switchMode(mode, btn) {
+            currentMode = mode;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.mode-section').forEach(s => s.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(mode + '-mode').classList.add('active');
+        }
+
+        window.onload = function() {
+            let dataStr = localStorage.getItem('examMasterDB');
+            if(dataStr) {
+                let data = JSON.parse(dataStr);
+                document.getElementById('m_school').value = data.school || "";
+                document.getElementById('m_exam').value = data.exam || "";
+                document.getElementById('m_date').value = data.date || "";
+                document.getElementById('m_shift').value = data.shift || "";
+                document.getElementById('m_incharge').value = data.incharge || "";
+                document.getElementById('m_teachers').value = data.teachers || "";
+                
+                if(data.classes && data.classes.length > 0 && data.entryMode !== 'excel') {
+                    // Group data by Class and Subject to recreate boxes
+                    let classGroups = {};
+                    data.classes.forEach(c => {
+                        let key = c.name + "_" + c.sub;
+                        if(!classGroups[key]) { classGroups[key] = []; }
+                        classGroups[key].push(c);
+                    });
+
+                    for(let key in classGroups) {
+                        let firstEntry = classGroups[key][0];
+                        let boxId = addClassBox(firstEntry.name, firstEntry.sub, false); // Add box without default section
+                        classGroups[key].forEach(secData => {
+                            addSectionRow(boxId, secData.sec, secData.start, secData.end, secData.nso);
+                        });
+                    }
+                } else { addClassBox(); }
+            } else { addClassBox(); }
+        };
+
+        // --- NEW: Class & Section Hierarchy ---
+        function addClassBox(name="", sub="", addDefaultSection = true) {
+            classIdCounter++;
+            let boxId = classIdCounter;
+            
+            const div = document.createElement('div');
+            div.className = 'class-box';
+            div.innerHTML = `
+                <div class="class-header">
+                    <input type="text" class="c-name" placeholder="Class Name (e.g. 10th)" value="${name}" style="flex: 1; font-weight: bold; font-size: 1.05rem; color: #1e3a8a;">
+                    <input type="text" class="c-sub" placeholder="Subject (Optional)" value="${sub}" style="flex: 1;">
+                    <button class="btn-remove" onclick="this.parentElement.parentElement.remove()">🗑️ Remove Class</button>
+                </div>
+                <label style="font-weight: 600; font-size: 0.85rem; color: #64748b; margin-bottom: 8px; display: block;">Sections & Roll Numbers:</label>
+                <div id="sections-list-${boxId}" style="margin-bottom: 15px;"></div>
+                <button class="btn-add-sec" onclick="addSectionRow(${boxId})">+ Add New Section</button>
+            `;
+            document.getElementById('class-container').appendChild(div);
+            
+            if(addDefaultSection) {
+                addSectionRow(boxId, 'A', '', '', '');
+            }
+            return boxId;
+        }
+
+        function addSectionRow(boxId, sec="", start="", end="", nso="") {
+            const div = document.createElement('div');
+            div.className = 'section-row';
+            div.innerHTML = `
+                <input type="text" class="s-sec" placeholder="Section (A, B...)" value="${sec}" style="width: 100px; font-weight: bold;">
+                <input type="number" class="s-start" placeholder="Start Roll" value="${start}" style="flex: 1; min-width:90px;">
+                <span style="color:#64748b; font-weight:bold;">से</span>
+                <input type="number" class="s-end" placeholder="End Roll" value="${end}" style="flex: 1; min-width:90px;">
+                <input type="text" class="s-nso" placeholder="NSO (Opt)" value="${nso}" style="flex: 1; min-width:80px;">
+                <button class="btn-remove" onclick="this.parentElement.remove()">✖</button>
+            `;
+            document.getElementById(`sections-list-${boxId}`).appendChild(div);
+        }
+
+        // Excel parsing logic remains the same
+        document.getElementById('excelFile').addEventListener('change', function(e) {
+            let file = e.target.files[0];
+            if(!file) return;
+
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let data = new Uint8Array(e.target.result);
+                let workbook = XLSX.read(data, {type: 'array'});
+                let sheetName = workbook.SheetNames[0];
+                let sheet = workbook.Sheets[sheetName];
+                let json = XLSX.utils.sheet_to_json(sheet);
+                
+                let classGroups = {};
+                json.forEach(row => {
+                    let className = row['Class'];
+                    if(!className) return; 
+                    let classKey = className + "_" + (row['Section'] || "") + "_" + (row['Subject'] || "");
+                    
+                    if(!classGroups[classKey]) {
+                        classGroups[classKey] = { name: className, sec: row['Section'] || "", sub: row['Subject'] || "", students: [] };
+                    }
+                    
+                    classGroups[classKey].students.push({
+                        roll: row['RollNo'], name: row['Name'] || "", father: row['FatherName'] || "",
+                        mother: row['MotherName'] || "", dob: row['DOB'] || "", isNSO: false 
+                    });
+                });
+
+                excelParsedData = Object.values(classGroups);
+                document.getElementById('excelStatus').style.display = 'block';
+                document.getElementById('excelClassCount').innerText = excelParsedData.length;
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        function downloadTemplate() {
+            let ws = XLSX.utils.aoa_to_sheet([["Class", "Section", "Subject", "RollNo", "Name", "FatherName", "MotherName", "DOB"]]);
+            let wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "StudentData");
+            XLSX.writeFile(wb, "Student_Data_Format.xlsx");
+        }
+
+        function saveData() {
+            let finalClasses = [];
+
+            if (currentMode === 'manual') {
+                // Loop through all Class Boxes
+                document.querySelectorAll('.class-box').forEach(cBox => {
+                    let cName = cBox.querySelector('.c-name').value;
+                    let cSub = cBox.querySelector('.c-sub').value;
+                    
+                    // Inside each Class Box, loop through its Sections
+                    cBox.querySelectorAll('.section-row').forEach(sRow => {
+                        let secName = sRow.querySelector('.s-sec').value;
+                        let start = parseInt(sRow.querySelector('.s-start').value);
+                        let end = parseInt(sRow.querySelector('.s-end').value);
+                        let nso = sRow.querySelector('.s-nso').value;
+                        
+                        if(cName && !isNaN(start)) {
+                            // If End roll is empty, consider it a single roll number
+                            if(isNaN(end)) end = start; 
+                            
+                            finalClasses.push({
+                                name: cName, 
+                                sub: cSub,
+                                sec: secName, 
+                                start: start, 
+                                end: end, 
+                                nso: nso
+                            });
+                        }
+                    });
+                });
+            } else if (currentMode === 'excel') {
+                if(excelParsedData.length === 0) { alert("Please upload an Excel file first!"); return false; }
+                finalClasses = excelParsedData;
+            }
+
+            let db = {
+                school: document.getElementById('m_school').value,
+                exam: document.getElementById('m_exam').value,
+                date: document.getElementById('m_date').value,
+                shift: document.getElementById('m_shift').value,
+                incharge: document.getElementById('m_incharge').value, 
+                teachers: document.getElementById('m_teachers').value,
+                entryMode: currentMode,
+                classes: finalClasses
+            };
+
+            localStorage.setItem('examMasterDB', JSON.stringify(db));
+            return true;
+        }
+
+        function saveAndGo() {
+            if(saveData()) { setTimeout(() => { window.location.href = "seating.html"; }, 300); }
+        }
+    </script>
+</body>
+</html>

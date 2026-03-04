@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seating & Attendance Planner - Srinis AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #2563eb; --primary-dark: #1d4ed8; --success: #059669; --danger: #ef4444; --bg: #f8fafc; }
+        body { font-family: 'Poppins', sans-serif; margin: 0; padding: 20px; padding-bottom: 120px; background: linear-gradient(135deg, #eaddff, #fbcfe8); min-height: 100vh; }
+        .controls { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 20px; border-radius: 16px; box-shadow: 0 10px 35px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; max-width: 950px; margin: 0 auto 20px auto; }
+        .controls h2 { margin-top: 0; color: #1e3a8a; font-weight: 800; text-align: center; font-size: 1.8rem; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: var(--success); font-weight: 600; margin-bottom: 20px; font-size: 0.95rem; }
+        .section-box { background: #ffffff; border: 1px solid #cbd5e1; padding: 20px; border-radius: 12px; margin-bottom: 15px; position: relative; }
+        .section-box h3 { margin-top: 0; color: #b45309; font-size: 1.2rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 15px; }
+        .info-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 15px; margin-bottom: 20px;}
+        .info-box h4 { margin: 0 0 10px 0; color: #92400e; font-size: 1.1rem; }
+        .info-details { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.95rem; color: #475569; }
+        .info-details strong { color: #1e293b; }
+        .input-group { display: flex; flex-direction: column; flex: 1; min-width: 140px;}
+        .input-group label { font-size: 0.85rem; font-weight: 700; margin-bottom: 4px; color: #475569; }
+        .input-group select, .r-name, .r-rows, .r-desks, .r-extra { padding: 10px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; font-family: inherit; color: #0f172a; transition: all 0.2s; }
+        .room-entry { display: flex; gap: 10px; align-items: center; background: #f1f5f9; padding: 10px 15px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+        .r-extra { background: #fef08a !important; border-color: #eab308 !important; font-weight: 700; width: 80px !important; color: #713f12 !important;}
+        button { font-family: inherit; cursor: pointer; border: none; transition: transform 0.1s; }
+        .btn-add-room { background: var(--success); color: white; padding: 10px 18px; border-radius: 8px; font-weight: bold; box-shadow: 0 4px 0 #047857; margin-bottom: 5px; font-size: 0.95rem;}
+        .btn-remove { background: var(--danger); color: white; width: 35px; height: 35px; border-radius: 6px; font-weight: bold; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; }
+        .tracker-box { background: linear-gradient(to right, #0f172a, #1e293b); color: white; padding: 15px 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: 1.1rem; font-weight: 700; border: 1px solid #334155; }
+        .tracker-status { padding: 6px 15px; border-radius: 8px; background: var(--success); }
+        .tracker-status.danger { background: var(--danger); }
+        .action-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 12px 25px; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; gap: 15px; z-index: 1000; border: 1px solid rgba(255,255,255,0.5); flex-wrap: wrap; justify-content: center; width: max-content; }
+        .action-bar button, .action-bar a { text-decoration: none; border: none; padding: 10px 20px; border-radius: 12px; font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 8px; color: #1e293b; }
+        .btn-home { background: #e0f2fe; border-bottom: 4px solid #bae6fd; }
+        .btn-edit { background: #fff7ed; border-bottom: 4px solid #fed7aa; color: #9a3412 !important; }
+        .btn-gen { background: #dcfce7; border-bottom: 4px solid #bbf7d0; }
+        .btn-prt { background: #f3e8ff; border-bottom: 4px solid #e9d5ff; }
+        .btn-clr { background: #fee2e2; border-bottom: 4px solid #fecaca; color: #991b1b !important; }
+        .ui-footer { text-align: center; padding: 30px 20px 100px 20px; color: #64748b; font-weight: 600; }
+        .ui-footer span { color: #1e3a8a; font-weight: 800; font-size: 1.2rem; }
+        
+        #print-container { display: flex; flex-direction: column; align-items: center; gap: 30px; margin-top: 40px; }
+        .print-page { display: flex; flex-direction: column; justify-content: space-between; width: 210mm; min-height: 297mm; background: white; padding: 15mm; box-shadow: 0 15px 35px rgba(0,0,0,0.15); border-radius: 5px; box-sizing: border-box; position: relative; }
+        .page-content { flex-grow: 1; }
+        .header-tbl { width: 100%; border-collapse: collapse; text-align: center; border: 2px solid #000; margin-bottom: 15px;}
+        .header-tbl td { border: 1px solid #000; padding: 6px; }
+        .school-name { font-size: 1.4rem; font-weight: 900; padding: 10px !important; text-transform: uppercase;}
+        .seat-table-container { margin-bottom: 20px; }
+        .seat-table { width: 100%; border-collapse: collapse; text-align: center; border: 2px solid #000; }
+        .seat-table th { border: 1px solid #000; background: #e2e8f0; font-size: 1.1rem; padding: 8px; -webkit-print-color-adjust: exact;}
+        .seat-table td { border: 1px solid #000; font-size: 1.2rem; font-weight: bold; padding: 10px 5px; }
+        .empty-gap { background: #f1f5f9; color: #cbd5e1 !important; font-size: 0.8rem !important; }
+        .adjusted-row td { background: #fef08a !important; padding: 8px; font-size: 1.1rem; text-align: left; -webkit-print-color-adjust: exact;}
+        .summary-box { margin-top: 20px; border: 2px solid #000; padding: 10px; page-break-inside: avoid; }
+        .summary-tbl { width: 100%; border-collapse: collapse; text-align: left; }
+        .summary-tbl th, .summary-tbl td { border: 1px solid #000; padding: 6px; font-size: 0.95rem; }
+        .summary-tbl th { background: #e2e8f0; -webkit-print-color-adjust: exact; }
+        .bottom-section { margin-top: auto; page-break-inside: avoid; }
+        .signatures { display: flex; justify-content: space-between; font-weight: bold; font-size: 1.2rem; padding: 0 10px; padding-top: 20px; padding-bottom: 15px;}
+        .print-footer { text-align: center; font-size: 0.8rem; color: #64748b; border-top: 1px dashed #cbd5e1; padding-top: 5px; font-style: italic; }
+        .master-title { text-align: center; font-size: 1.5rem; text-decoration: underline; margin: 15px 0; font-weight: bold; }
+        .master-tbl { width: 100%; border-collapse: collapse; margin-top: 10px; text-align: center;}
+        .master-tbl th, .master-tbl td { border: 1px solid #000; padding: 8px; font-size: 1rem; }
+        .master-tbl th { background: #f1f5f9; -webkit-print-color-adjust: exact;}
+        .att-tbl { width: 100%; border-collapse: collapse; text-align: left; margin-bottom: 5px;}
+        .att-tbl th, .att-tbl td { border: 1px solid #000; padding: 5px 6px; font-size: 0.95rem; height: 26px;}
+        .att-tbl th { background: #e2e8f0; text-align: center; -webkit-print-color-adjust: exact; padding: 6px; font-size: 1rem;}
+        .empty-att-row td { color: #94a3b8; }
+        
+        @media print {
+            @page { size: A4 portrait; margin: 10mm; }
+            body, html { background: white; margin: 0; padding: 0; }
+            .controls, .action-bar, .ui-footer { display: none !important; }
+            #print-container { margin: 0; display: block; gap: 0; }
+            .print-page { width: 100%; min-height: auto; height: 277mm !important; padding: 0; box-shadow: none; border-radius: 0; page-break-after: always; page-break-inside: avoid; overflow: hidden;}
+            .print-page:last-child { page-break-after: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls" id="input-area">
+        <h2>🪑 Seating & Attendance Planner</h2>
+        <div class="subtitle">Data linked directly from Master Setup</div>
+
+        <div class="info-box" id="masterDataDisplay">
+            <h4>📁 Linked Master Data</h4>
+            <div class="info-details">
+                <div><strong>School:</strong> <span id="disp_school">Loading...</span></div>
+                <div><strong>Exam:</strong> <span id="disp_exam">Loading...</span></div>
+                <div><strong>Date & Shift:</strong> <span id="disp_date">Loading...</span></div>
+                <div><strong>Total Classes Linked:</strong> <span id="disp_classes">0</span></div>
+            </div>
+            <p style="font-size: 0.8rem; color: #b45309; margin-top: 10px; margin-bottom: 0;">* To edit this data, please click 'School Profile' below.</p>
+        </div>
+
+        <div class="section-box" style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <div class="input-group" style="max-width: 300px;">
+                <label>Seating Pattern</label>
+                <select id="pattern">
+                    <option value="regular">Regular (Top-Bottom) ⬇️</option>
+                    <option value="snake">Snake (U-Turn) 🐍</option>
+                    <option value="gap">Alternate / Gap (Anti-Cheating) 🪑-🪑</option>
+                </select>
+            </div>
+            <div class="input-group" style="max-width: 350px;">
+                <label>Student Distribution Mode</label>
+                <select id="distribution">
+                    <option value="sequential">Local Exam (क्रमानुसार 2 क्लास - 50/50%) 🏫</option>
+                    <option value="proportional">Board Exam (सभी क्लास का सही Ratio) ⚖️</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <h3>🏢 Room Allocations</h3>
+            <div class="tracker-box">
+                <div>🧑‍🎓 Total Students: <span id="track-students">0</span></div>
+                <div>🪑 Room Capacity: <span id="track-capacity">0</span></div>
+                <div class="tracker-status" id="track-status">Status</div>
+            </div>
+            <div id="room-list"></div>
+            <button class="btn-add-room" onclick="addRoomInput()">➕ Add New Room</button>
+        </div>
+    </div>
+
+    <div class="ui-footer">Powered by <span>✨ Srinis AI</span></div>
+
+    <div class="action-bar">
+        <a href="exam.html" class="btn-home">🏠 Home</a>
+        <a href="setup.html" class="btn-edit">🏫 School Profile</a>
+        <button class="btn-gen" onclick="generateAllRooms()">⚙️ Generate Plan</button>
+        <button class="btn-prt" onclick="window.print()">🖨️ Print Layout</button>
+        <button class="btn-clr" onclick="clearRooms()" title="Clear Rooms">🗑️ Clear</button>
+		<a href="index.html" class="btn btn-nav">🏠 Main Home</a>
+    </div>
+
+    <div id="print-container"></div>
+
+    <script>
+        let masterDB = null;
+        let globalClassesData = []; 
+
+        window.onload = function() {
+            let dataStr = localStorage.getItem('examMasterDB');
+            if(!dataStr) { alert("⚠️ No Master Data found! Please setup your database first."); window.location.href = "setup.html"; return; }
+            
+            masterDB = JSON.parse(dataStr);
+            document.getElementById('disp_school').innerText = masterDB.school || "-";
+            document.getElementById('disp_exam').innerText = masterDB.exam || "-";
+            document.getElementById('disp_date').innerText = (masterDB.date || "") + " | " + (masterDB.shift || "");
+
+            let groupedData = {};
+            let globalSeenRolls = new Set(); // To STRICTLY prevent duplicate rolls across entire DB
+
+            if(masterDB.classes) {
+                masterDB.classes.forEach((c, idx) => {
+                    if(!c) return; 
+                    let cName = String(c.name || "Class").trim();
+                    let cSec = String(c.sec || "").trim();
+                    let cSub = String(c.sub || "").trim();
+                    
+                    let key = cName + "_||_" + cSec + "_||_" + cSub; 
+                    
+                    if(!groupedData[key]) {
+                        groupedData[key] = { id: 'cls_' + Object.keys(groupedData).length, className: cName, sec: cSec, subject: cSub, allStudents: [] };
+                    }
+                    
+                    let grp = groupedData[key];
+
+                    if(c.students) {
+                        c.students.forEach(s => {
+                            let rollKey = cName + "_" + s.roll;
+                            if(!globalSeenRolls.has(rollKey)) {
+                                globalSeenRolls.add(rollKey);
+                                let nsoString = String(c.nso || "");
+                                let isNSO = nsoString !== "" && nsoString.includes(String(s.roll));
+                                grp.allStudents.push({ roll: s.roll, name: s.name, class: cName, sec: cSec, sub: cSub, isNSO: isNSO });
+                            }
+                        });
+                    } else {
+                        let nsoArray = c.nso ? String(c.nso).split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n)) : [];
+                        if(c.start != null && c.end != null) {
+                            for(let i = parseInt(c.start); i <= parseInt(c.end); i++) {
+                                let rollKey = cName + "_" + i;
+                                if(!globalSeenRolls.has(rollKey)) {
+                                    globalSeenRolls.add(rollKey);
+                                    grp.allStudents.push({ roll: i, class: cName, sec: cSec, sub: cSub, isNSO: nsoArray.includes(i) });
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            globalClassesData = Object.values(groupedData);
+            document.getElementById('disp_classes').innerText = globalClassesData.length;
+
+            let savedRooms = localStorage.getItem('savedRoomsV1');
+            if(savedRooms) document.getElementById('room-list').innerHTML = savedRooms;
+            else addRoomInput();
+
+            let savedPattern = localStorage.getItem('savedPatternV1');
+            if(savedPattern) document.getElementById('pattern').value = savedPattern;
+
+            let savedDist = localStorage.getItem('savedDistributionV1');
+            if(savedDist) document.getElementById('distribution').value = savedDist;
+
+            updateLiveTracker();
+        };
+
+        function addRoomInput() {
+            const div = document.createElement('div'); div.className = 'room-entry';
+            div.innerHTML = `<input type="text" class="r-name" value="Room" placeholder="Room Name">
+                             <input type="number" class="r-rows" placeholder="Cols (Rows)"> X
+                             <input type="number" class="r-desks" placeholder="Desks">
+                             <input type="number" class="r-extra" placeholder="+ Extra" value="0">
+                             <button class="btn-remove" onclick="removeEl(this)">✖</button>`;
+            document.getElementById('room-list').appendChild(div);
+            updateLiveTracker(); saveRoomsLocally();
+        }
+
+        function removeEl(btn) { btn.parentElement.remove(); updateLiveTracker(); saveRoomsLocally(); }
+        
+        function clearRooms() {
+            if(confirm("Are you sure you want to clear all room entries?")) {
+                localStorage.removeItem('savedRoomsV1'); document.getElementById('room-list').innerHTML = ''; addRoomInput();
+            }
+        }
+
+        document.getElementById('input-area').addEventListener('input', () => { updateLiveTracker(); saveRoomsLocally(); });
+        document.getElementById('pattern').addEventListener('change', () => { updateLiveTracker(); saveRoomsLocally(); });
+        document.getElementById('distribution').addEventListener('change', () => { saveRoomsLocally(); });
+
+        function saveRoomsLocally() {
+            localStorage.setItem('savedRoomsV1', document.getElementById('room-list').innerHTML);
+            localStorage.setItem('savedPatternV1', document.getElementById('pattern').value);
+            localStorage.setItem('savedDistributionV1', document.getElementById('distribution').value);
+        }
+
+        function updateLiveTracker() {
+            let pattern = document.getElementById('pattern').value;
+            let totalValidStudents = 0;
+            globalClassesData.forEach(cls => { totalValidStudents += cls.allStudents.filter(s => !s.isNSO).length; });
+
+            let totalCapacity = 0;
+            document.querySelectorAll('.room-entry').forEach(entry => {
+                let r = parseInt(entry.querySelector('.r-rows').value) || 0;
+                let d = parseInt(entry.querySelector('.r-desks').value) || 0;
+                let e = parseInt(entry.querySelector('.r-extra').value) || 0; 
+                let cap = r * d;
+                if (pattern === 'gap') cap = Math.ceil(cap / 2);
+                totalCapacity += (cap + e);
+            });
+
+            document.getElementById('track-students').innerText = totalValidStudents;
+            document.getElementById('track-capacity').innerText = totalCapacity;
+            
+            let statusEl = document.getElementById('track-status');
+            if (totalCapacity >= totalValidStudents && totalValidStudents > 0) {
+                statusEl.innerHTML = `✅ ${totalCapacity - totalValidStudents} Seats Free`;
+                statusEl.className = 'tracker-status';
+            } else if (totalValidStudents > totalCapacity) {
+                statusEl.innerHTML = `❌ ${totalValidStudents - totalCapacity} Seats Short!`;
+                statusEl.className = 'tracker-status danger';
+            } else {
+                statusEl.innerHTML = `Status`;
+                statusEl.className = 'tracker-status';
+            }
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function generateAllRooms() {
+            try {
+                if(!masterDB) { alert("⚠️ मास्टर डेटा मौजूद नहीं है।"); return; }
+
+                const sName = masterDB.school || "School/Institution Name";
+                const eName = masterDB.exam || "Exam Name";
+                const eShift = masterDB.shift || "Shift Time";
+                const eDate = masterDB.date || "Date";
+                const pattern = document.getElementById('pattern').value;
+                const distribution = document.getElementById('distribution').value;
+                const examIncharge = masterDB.incharge || "________________";
+                
+                let teacherPool = masterDB.teachers ? String(masterDB.teachers).split(',').map(t => t.trim()).filter(t => t !== "") : [];
+                shuffle(teacherPool); 
+
+                if(globalClassesData.length === 0) { alert("⚠️ कोई क्लास मास्टर सेटअप में नहीं जोड़ी गई है!"); return; }
+
+                let rooms = [];
+                document.querySelectorAll('.room-entry').forEach(entry => {
+                    let rows = parseInt(entry.querySelector('.r-rows').value) || 0;
+                    let desks = parseInt(entry.querySelector('.r-desks').value) || 0;
+                    let extra = parseInt(entry.querySelector('.r-extra').value) || 0; 
+                    if(rows > 0 && desks > 0) {
+                        rooms.push({ name: entry.querySelector('.r-name').value || "Room", rows: rows, desks: desks, extra: extra });
+                    }
+                });
+
+                if(rooms.length === 0) { alert("⚠️ कृपया कम से कम एक कमरे का विवरण भरें!"); return; }
+
+                const container = document.getElementById('print-container');
+                container.innerHTML = ''; 
+
+                let masterSummaryData = []; 
+                let dutyListData = [];
+                let groupedPagesHTML = '';
+
+                // 🌟 POOL SYSTEM - To strictly eliminate duplicates. 
+                let classesPool = {};
+                globalClassesData.forEach(c => {
+                    classesPool[c.id] = { id: c.id, className: c.className, sec: c.sec, subject: c.subject, students: JSON.parse(JSON.stringify(c.allStudents)) };
+                });
+
+                // Retain Original Sequence logic
+                let uniqueBaseClasses = [...new Set(globalClassesData.map(c => c.className))];
+
+                function getRemaining(bName) {
+                    let count = 0;
+                    Object.values(classesPool).filter(c => c.className === bName).forEach(sec => {
+                        count += sec.students.filter(s => !s.isNSO).length;
+                    });
+                    return count;
+                }
+
+                function pullNextStudent(bName, roomValidRolls, roomNsoRolls, flatRoomRollsForAttendance) {
+                    let targetSections = Object.values(classesPool).filter(c => c.className === bName);
+                    for (let sec of targetSections) {
+                        while (sec.students.length > 0) {
+                            let st = sec.students.shift(); // Shifts out permanently
+                            if (st.isNSO) {
+                                roomNsoRolls[sec.id].push(st);
+                                flatRoomRollsForAttendance.push(st);
+                            } else {
+                                roomValidRolls[sec.id].push(st);
+                                flatRoomRollsForAttendance.push(st);
+                                return st;
+                            }
+                        }
+                    }
+                    return null;
+                }
+
+                rooms.forEach((room, rIdx) => {
+                    let totalRemaining = uniqueBaseClasses.reduce((sum, b) => sum + getRemaining(b), 0);
+                    if (totalRemaining === 0) return;
+
+                    let assignedTeacher = teacherPool.length > 0 ? teacherPool.shift() : "________________";
+                    let grid = Array.from({length: room.desks}, () => Array(room.rows).fill("-"));
+                    
+                    let roomValidRolls = {}; 
+                    let roomNsoRolls = {};
+                    globalClassesData.forEach(c => { roomValidRolls[c.id] = []; roomNsoRolls[c.id] = []; });
+                    let flatRoomRollsForAttendance = [];
+
+                    let colClasses = [];
+                    let virtualRemaining = {};
+                    uniqueBaseClasses.forEach(b => virtualRemaining[b] = getRemaining(b));
+                    
+                    let avail = uniqueBaseClasses.filter(b => virtualRemaining[b] > 0);
+
+                    if (distribution === 'sequential') {
+                        // LOCAL EXAM: Strictly keep input sequence, take top 2 available. NO SORTING BY SIZE.
+                        let activeSeqClasses = avail.slice(0, 2); 
+                        for (let r = 0; r < room.rows; r++) {
+                            let target = activeSeqClasses[r % activeSeqClasses.length];
+                            colClasses[r] = target;
+                            if (target) virtualRemaining[target] -= room.desks;
+                        }
+                    } else {
+                        // BOARD EXAM: Strictly Proportional Ratio logic.
+                        let totalBoardRemaining = avail.reduce((sum, b) => sum + virtualRemaining[b], 0);
+                        let colAllocations = {};
+                        avail.forEach(b => colAllocations[b] = 0);
+
+                        if (totalBoardRemaining > 0) {
+                            let remainders = [];
+                            avail.forEach(b => {
+                                let idealCols = (virtualRemaining[b] / totalBoardRemaining) * room.rows;
+                                colAllocations[b] = Math.floor(idealCols);
+                                remainders.push({ className: b, rem: idealCols - colAllocations[b] });
+                            });
+
+                            let allocatedCols = Object.values(colAllocations).reduce((sum, val) => sum + val, 0);
+                            let shortfall = room.rows - allocatedCols;
+
+                            remainders.sort((a, b) => b.rem - a.rem);
+                            for (let i = 0; i < shortfall; i++) {
+                                if (remainders[i]) colAllocations[remainders[i].className]++;
+                            }
+                        }
+
+                        let activeBoardClasses = [];
+                        for (let r = 0; r < room.rows; r++) {
+                            let bestClass = null;
+                            let maxAlloc = -1;
+                            
+                            for (let b in colAllocations) {
+                                if (colAllocations[b] > 0) {
+                                    if (r > 0 && b === activeBoardClasses[r - 1] && Object.keys(colAllocations).some(k => k !== b && colAllocations[k] > 0)) {
+                                        continue; 
+                                    }
+                                    if (colAllocations[b] > maxAlloc) {
+                                        maxAlloc = colAllocations[b];
+                                        bestClass = b;
+                                    }
+                                }
+                            }
+                            if (!bestClass) {
+                                for (let b in colAllocations) {
+                                    if (colAllocations[b] > 0 && colAllocations[b] > maxAlloc) {
+                                        maxAlloc = colAllocations[b];
+                                        bestClass = b;
+                                    }
+                                }
+                            }
+                            if (bestClass) {
+                                activeBoardClasses[r] = bestClass;
+                                colAllocations[bestClass]--;
+                                virtualRemaining[bestClass] -= room.desks;
+                            }
+                        }
+                        for (let r = 0; r < room.rows; r++) {
+                            colClasses[r] = activeBoardClasses[r] || null;
+                        }
+                    }
+
+                    let adjustedList = []; 
+
+                    // 🌟 STRICT COLUMN FILLING 🌟
+                    for (let r = 0; r < room.rows; r++) { 
+                        let reverse = (pattern === 'snake' && r % 2 === 1);
+                        let targetBaseClass = colClasses[r];
+
+                        for (let d = 0; d < room.desks; d++) {
+                            let deskIndex = reverse ? (room.desks - 1 - d) : d;
+                            if (pattern === 'gap' && (r + d) % 2 !== 0) { grid[deskIndex][r] = "GAP"; continue; }
+
+                            if (!targetBaseClass) continue;
+
+                            let st = pullNextStudent(targetBaseClass, roomValidRolls, roomNsoRolls, flatRoomRollsForAttendance);
+                            
+                            // IF CLASS RUNS OUT -> LEAVE EMPTY. DO NOT MIX OTHER CLASS IN THIS COLUMN.
+                            if (st) {
+                                grid[deskIndex][r] = st;
+                            }
+                        }
+                    }
+
+                    // Extra Seats (These are unaligned extra chairs, so we pull from remaining)
+                    for (let e = 0; e < room.extra; e++) {
+                        let availExtra = uniqueBaseClasses.filter(b => getRemaining(b) > 0);
+                        if (availExtra.length === 0) break;
+                        
+                        if (distribution === 'proportional') {
+                            availExtra.sort((a,b) => getRemaining(b) - getRemaining(a));
+                        }
+                        let st = pullNextStudent(availExtra[0], roomValidRolls, roomNsoRolls, flatRoomRollsForAttendance);
+                        if (st) adjustedList.push(`<b>${st.roll}</b> (${st.class}${st.sec ? '-'+st.sec : ''})`);
+                    }
+
+                    Object.values(classesPool).forEach(sec => {
+                        if (roomValidRolls[sec.id] && roomValidRolls[sec.id].length > 0) {
+                            while (sec.students.length > 0 && sec.students[0].isNSO) {
+                                let st = sec.students.shift();
+                                roomNsoRolls[sec.id].push(st);
+                                flatRoomRollsForAttendance.push(st);
+                            }
+                        }
+                    });
+
+                    let totalInRoom = 0, summaryHTMLRows = '', roomMasterSummaries = [];
+                    globalClassesData.forEach(cls => {
+                        let validRolls = roomValidRolls[cls.id];
+                        let nsoRolls = roomNsoRolls[cls.id];
+                        
+                        if(validRolls.length === 0 && nsoRolls.length === 0) return;
+                        totalInRoom += validRolls.length;
+
+                        let sArray = validRolls.map(v => parseInt(v.roll)).filter(r => !isNaN(r)).sort((a,b)=>a-b);
+                        let sumText = "-";
+                        if(sArray.length > 0) {
+                            let ranges=[], start=sArray[0], prev=sArray[0];
+                            for(let i=1; i<sArray.length; i++){
+                                if(sArray[i]===prev+1) prev=sArray[i]; 
+                                else { ranges.push(start===prev?`${start}`:`${start} से ${prev}`); start=prev=sArray[i];}
+                            }
+                            ranges.push(start===prev?`${start}`:`${start} से ${prev}`);
+                            sumText = ranges.join(', ');
+                        }
+
+                        let secBadge = cls.sec ? ` <span style="font-size:0.85rem; background:#cbd5e1; padding:2px 6px; border-radius:4px; color:#0f172a; margin-left:5px;">Sec: ${cls.sec}</span>` : '';
+                        let classDisplayName = cls.className + secBadge;
+
+                        let nsoTextHTML = nsoRolls.length > 0 ? `<br><span style="color: #dc2626; font-size: 0.95rem; display: inline-block; margin-top: 6px;"><b>NSO (Absent):</b> ${nsoRolls.map(r=>r.roll).join(', ')}</span>` : '';
+                        
+                        summaryHTMLRows += `<tr><td><b>${classDisplayName}</b> <br><small>${cls.subject}</small></td><td style="line-height: 1.6;"><span style="color: #1e3a8a;">${sumText}</span> ${nsoTextHTML}</td><td><b style="font-size: 1.1rem;">${validRolls.length}</b></td></tr>`;
+                        roomMasterSummaries.push({ className: classDisplayName, subject: cls.subject, summaryText: sumText, total: validRolls.length });
+                    });
+
+                    if (totalInRoom === 0 && flatRoomRollsForAttendance.length === 0) return;
+
+                    masterSummaryData.push({ roomName: room.name, classSummaries: roomMasterSummaries });
+                    dutyListData.push({ room: room.name, teacher: assignedTeacher });
+                    
+                    let adjustedHTML = adjustedList.length > 0 ? `<tr class="adjusted-row"><td colspan="${room.rows}"><b>अतिरिक्त समायोजित (Extra Seats):</b> ${adjustedList.join(', ')}</td></tr>` : '';
+
+                    groupedPagesHTML += `
+                    <div class="print-page">
+                        <div class="page-content">
+                            <table class="header-tbl">
+                                <tr><td colspan="4" class="school-name">${sName}</td></tr>
+                                <tr><td colspan="4" style="font-weight:bold;">${eName}</td></tr>
+                                <tr><td colspan="4" style="font-size:0.9rem;">बैठक व्यवस्था - ${eShift}</td></tr>
+                                <tr style="font-weight: bold; font-size: 0.95rem;">
+                                    <td style="width: 15%; font-weight: normal;">दिनांक</td><td style="width: 35%;">${eDate}</td>
+                                    <td style="width: 20%; font-weight: normal;">कक्ष/हॉल संख्या</td><td style="width: 30%; color: #1e3a8a;">${room.name}</td>
+                                </tr>
+                            </table>
+
+                            <div class="seat-table-container">
+                                <table class="seat-table">
+                                    <thead><tr>${Array.from({length: room.rows}, (_, i) => `<th>Row-${i+1}</th>`).join('')}</tr></thead>
+                                    <tbody>
+                                        ${grid.map(row => `<tr>${row.map(seat => {
+                                            if (seat === "GAP") return `<td class="empty-gap">✖</td>`;
+                                            return `<td>${seat === "-" ? "-" : seat.roll}</td>`;
+                                        }).join('')}</tr>`).join('')}
+                                        ${adjustedHTML}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="summary-box">
+                                <h4 style="margin: 0 0 5px 0; text-decoration: underline; font-size:1.1rem;">कक्ष समरी (${room.name})</h4>
+                                <table class="summary-tbl">
+                                    <thead><tr><th style="width: 20%;">कक्षा / विषय</th><th style="width: 65%;">रोल नंबर विवरण (कहाँ से कहाँ तक)</th><th style="width: 15%;">छात्र</th></tr></thead>
+                                    <tbody>
+                                        ${summaryHTMLRows}
+                                        <tr style="background: #f1f5f9;"><td colspan="2" style="text-align: right; font-weight: bold; font-size:1.1rem;">कमरे में कुल उपस्थित छात्र:</td><td><b style="font-size:1.1rem;">${totalInRoom}</b></td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="bottom-section">
+                            <div class="signatures">
+                                <div>हस्ताक्षर परीक्षा प्रभारी<br><small style="font-weight:normal">(Exam Incharge)</small></div>
+                                <div style="text-align: right;">हस्ताक्षर केन्द्राधीक्षक<br><small style="font-weight:normal">(Center Supdt.)</small></div>
+                            </div>
+                            <div class="print-footer">Generated by <b>Srinis AI</b></div>
+                        </div>
+                    </div>`;
+
+                    flatRoomRollsForAttendance.sort((a,b) => {
+                        let s = String(a.sec || "").localeCompare(String(b.sec || ""), undefined, {numeric: true, sensitivity: 'base'});
+                        if(s !== 0) return s;
+                        return (parseInt(a.roll) || 0) - (parseInt(b.roll) || 0);
+                    });
+                    
+                    let chunkSize = 40; 
+                    for (let i = 0; i < flatRoomRollsForAttendance.length; i += chunkSize) {
+                        let chunk = flatRoomRollsForAttendance.slice(i, i + chunkSize);
+                        let pageNum = Math.floor(i / chunkSize) + 1;
+                        let totalPages = Math.ceil(flatRoomRollsForAttendance.length / chunkSize);
+                        let pageLabel = totalPages > 1 ? `<br><span style="font-size:0.85rem; color:#475569;">Page ${pageNum} of ${totalPages}</span>` : '';
+
+                        const getStClassDisplay = (st) => st.sec ? `${st.class} <span style="font-size:0.75rem; background:#cbd5e1; padding:2px 4px; border-radius:3px; color:#0f172a;">${st.sec}</span>` : st.class;
+
+                        let attTableContent = '';
+
+                        if (chunk.length > 20) {
+                            let leftPart = chunk.slice(0, 20); let rightPart = chunk.slice(20);
+
+                            const renderLeftRows = (part, offset) => {
+                                return part.map((st, idx) => `
+                                    <tr style="${st.isNSO ? 'background-color: #fef2f2; -webkit-print-color-adjust: exact;' : ''}">
+                                        <td style="text-align:center; font-weight:bold;">${offset + idx + 1}</td>
+                                        <td style="font-size:0.85rem;"><b>${getStClassDisplay(st)}</b></td>
+                                        <td style="text-align:center; font-weight:bold; font-size:1.1rem; color: ${st.isNSO ? '#dc2626' : '#000'};">${st.roll}</td>
+                                        <td style="text-align:center; font-weight:900; font-size:1rem; color: #dc2626; letter-spacing:1px;">${st.isNSO ? 'NSO' : ''}</td>
+                                    </tr>`).join('');
+                            };
+
+                            const renderRightRows = (part, offset) => {
+                                let rowsHTML = '';
+                                for (let j = 0; j < 20; j++) {
+                                    if (j < part.length) {
+                                        let st = part[j];
+                                        rowsHTML += `
+                                        <tr style="${st.isNSO ? 'background-color: #fef2f2; -webkit-print-color-adjust: exact;' : ''}">
+                                            <td style="text-align:center; font-weight:bold;">${offset + j + 1}</td>
+                                            <td style="font-size:0.85rem;"><b>${getStClassDisplay(st)}</b></td>
+                                            <td style="text-align:center; font-weight:bold; font-size:1.1rem; color: ${st.isNSO ? '#dc2626' : '#000'};">${st.roll}</td>
+                                            <td style="text-align:center; font-weight:900; font-size:1rem; color: #dc2626; letter-spacing:1px;">${st.isNSO ? 'NSO' : ''}</td>
+                                        </tr>`;
+                                    } else {
+                                        rowsHTML += `<tr class="empty-att-row"><td style="text-align:center; font-weight:bold;">${offset + j + 1}</td><td></td><td></td><td></td></tr>`;
+                                    }
+                                }
+                                return rowsHTML;
+                            };
+                            
+                            attTableContent = `
+                            <div style="display: flex; gap: 15px; width: 100%; margin-top: 5px;">
+                                <table class="att-tbl" style="width: 50%;">
+                                    <thead><tr><th style="width:15%">S.No</th><th style="width:30%">Class</th><th style="width:25%">Roll No</th><th style="width:30%">Sign</th></tr></thead>
+                                    <tbody>${renderLeftRows(leftPart, i)}</tbody>
+                                </table>
+                                <table class="att-tbl" style="width: 50%;">
+                                    <thead><tr><th style="width:15%">S.No</th><th style="width:30%">Class</th><th style="width:25%">Roll No</th><th style="width:30%">Sign</th></tr></thead>
+                                    <tbody>${renderRightRows(rightPart, i + 20)}</tbody>
+                                </table>
+                            </div>`;
+                        } else {
+                            const renderRows = (part) => {
+                                return part.map((st, idx) => `
+                                    <tr style="${st.isNSO ? 'background-color: #fef2f2; -webkit-print-color-adjust: exact;' : ''}">
+                                        <td style="text-align:center; font-weight:bold;">${i + idx + 1}</td>
+                                        <td><b>${getStClassDisplay(st)}</b> <small>(${st.sub})</small></td>
+                                        <td style="text-align:center; font-weight:bold; font-size:1.1rem; color: ${st.isNSO ? '#dc2626' : '#000'};">${st.roll}</td>
+                                        <td style="text-align:center; font-weight:900; font-size:1.1rem; color: #dc2626; letter-spacing:1px;">${st.isNSO ? 'NSO (Absent)' : ''}</td>
+                                    </tr>`).join('');
+                            };
+
+                            attTableContent = `
+                            <table class="att-tbl" style="margin-top: 10px;">
+                                <thead><tr>
+                                    <th style="width:10%">क्र. सं.<br><small>(S.No)</small></th>
+                                    <th style="width:30%">कक्षा एवं विषय<br><small>(Class & Sub)</small></th>
+                                    <th style="width:25%">रोल नंबर<br><small>(Roll No)</small></th>
+                                    <th style="width:35%">हस्ताक्षर<br><small>(Signature)</small></th>
+                                </tr></thead>
+                                <tbody>${renderRows(chunk)}</tbody>
+                            </table>`;
+                        }
+
+                        groupedPagesHTML += `
+                        <div class="print-page">
+                            <div class="page-content">
+                                <table class="header-tbl" style="margin-bottom: 10px;">
+                                    <tr><td class="school-name" colspan="2">${sName}</td></tr>
+                                    <tr><td colspan="2" style="font-weight:bold; font-size:1.1rem;">ATTENDANCE SHEET (उपस्थिति पत्रक) - ${eName}</td></tr>
+                                    <tr style="font-weight: bold; font-size: 0.95rem;">
+                                        <td style="width: 50%; text-align:left; padding-left:15px;">कक्ष संख्या: <span style="color:#1e3a8a; font-size: 1.1rem;">${room.name}</span></td>
+                                        <td style="width: 50%; text-align:right; padding-right:15px;">दिनांक: ${eDate} | ${eShift} ${pageLabel}</td>
+                                    </tr>
+                                </table>
+                                ${attTableContent}
+                            </div>
+                            <div class="bottom-section">
+                                <div class="signatures">
+                                    <div>हस्ताक्षर वीक्षक<br><small style="font-weight:normal">(Invigilator Sign)</small></div>
+                                    <div style="text-align: right;">हस्ताक्षर केन्द्राधीक्षक<br><small style="font-weight:normal">(Center Supdt.)</small></div>
+                                </div>
+                                <div class="print-footer">Generated by <b>Srinis AI</b></div>
+                            </div>
+                        </div>`;
+                    }
+                });
+
+                if (teacherPool.length > 0) {
+                    let reserveTeacher = teacherPool.shift(); 
+                    dutyListData.push({ room: "<b>Reserve (सुरक्षित)</b>", teacher: reserveTeacher, isReserve: true });
+                }
+
+                let finalAdminPagesHTML = '';
+
+                if(masterSummaryData.length > 0) {
+                    finalAdminPagesHTML += `
+                    <div class="print-page">
+                        <div class="page-content">
+                            <table class="header-tbl" style="margin-bottom: 20px;">
+                                <tr><td class="school-name" colspan="2">${sName}</td></tr>
+                                <tr><td colspan="2" style="font-weight:bold;">${eName} | ${eDate}</td></tr>
+                            </table>
+                            <div class="master-title">नोटिस बोर्ड: बैठक व्यवस्था (Notice Board Summary)</div>
+                            <table class="master-tbl">
+                                <thead><tr><th style="width:20%">कमरा (Room)</th><th style="width:80%">कक्षा एवं रोल नंबर विवरण (Class & Roll Details)</th></tr></thead>
+                                <tbody>
+                                    ${masterSummaryData.map(m => `
+                                        <tr>
+                                            <td class="room-col" style="font-size: 1.2rem; font-weight:bold;">${m.roomName}</td>
+                                            <td style="text-align:left; padding: 10px 15px; line-height: 1.6;">
+                                                ${m.classSummaries.map(cs => {
+                                                    return `
+                                                    <div style="border-bottom: 1px dashed #ccc; padding-bottom: 5px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: flex-start;">
+                                                        <div style="flex: 1;">
+                                                            <b>${cs.className}</b> <small>(${cs.subject})</small> : 
+                                                            <span style="color: #1e3a8a; font-weight:600;">${cs.summaryText}</span> 
+                                                        </div>
+                                                        <div style="font-weight: bold; background: #e2e8f0; padding: 4px 10px; border-radius: 4px; margin-left: 10px; white-space: nowrap; font-size: 1.1rem; border:1px solid #cbd5e1;">
+                                                            Total: ${cs.total}
+                                                        </div>
+                                                    </div>`;
+                                                }).join('')}
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="bottom-section">
+                            <div style="padding-bottom:15px; text-align: center; font-size: 1.3rem; font-weight: bold;">शुभकामनाएं! (Best of Luck)</div>
+                            <div class="print-footer">Generated by <b>Srinis AI</b></div>
+                        </div>
+                    </div>`;
+
+                    finalAdminPagesHTML += `
+                    <div class="print-page">
+                        <div class="page-content">
+                            <table class="header-tbl" style="margin-bottom: 20px; background:#fefce8; -webkit-print-color-adjust: exact;">
+                                <tr><td class="school-name">${sName}</td></tr>
+                                <tr><td style="font-weight:bold; color:#b45309; padding: 10px !important;">⚠️ CONFIDENTIAL: INTERNAL DUTY ROSTER (वीक्षक ड्यूटी चार्ट)</td></tr>
+                            </table>
+                            
+                            <div style="text-align:center; font-size: 1.2rem; font-weight: bold; margin-bottom: 15px;">
+                                परीक्षा प्रभारी (Exam Incharge): <span style="color: #1e3a8a; text-decoration: underline;">${examIncharge}</span>
+                            </div>
+
+                            <table class="master-tbl">
+                                <thead><tr>
+                                    <th style="width:10%">क्र. सं.</th>
+                                    <th style="width:30%">कक्ष/हॉल नंबर (Room)</th>
+                                    <th style="width:40%">नियुक्त वीक्षक (Invigilator Name)</th>
+                                    <th style="width:20%">हस्ताक्षर (Sign)</th>
+                                </tr></thead>
+                                <tbody>
+                                    ${dutyListData.map((d, i) => `
+                                        <tr style="${d.isReserve ? 'background-color:#f1f5f9; -webkit-print-color-adjust:exact;' : ''}">
+                                            <td style="text-align:center; font-weight:bold;">${i+1}</td>
+                                            <td class="room-col" style="font-size: 1.1rem;">${d.room}</td>
+                                            <td style="text-align:left; padding-left:20px; font-weight:bold; font-size: 1.1rem;">${d.teacher}</td>
+                                            <td></td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+
+                            <div style="margin-top:30px; padding:15px; border:1px solid #ccc; font-size:0.95rem; background:#f9fafb; -webkit-print-color-adjust: exact;">
+                                <b>निर्देश:</b> यह सूची केवल एग्जाम इंचार्ज और केन्द्राधीक्षक के उपयोग के लिए है। कृपया इसे छात्रों के सूचना पट्ट (Notice Board) पर चस्पा न करें।
+                            </div>
+                        </div>
+                        <div class="bottom-section">
+                            <div class="print-footer">Generated by <b>Srinis AI</b></div>
+                        </div>
+                    </div>`;
+                }
+
+                if(finalAdminPagesHTML === '' && groupedPagesHTML === '') { alert("⚠️ जनरेट करने के लिए कोई भी छात्र बाकी नहीं है!"); }
+
+                container.innerHTML = finalAdminPagesHTML + groupedPagesHTML;
+                setTimeout(() => { document.getElementById("print-container").scrollIntoView({ behavior: 'smooth' }); }, 100);
+
+            } catch (error) {
+                alert("❌ एक एरर आई है: \n" + error.message);
+                console.error("Crash Details: ", error);
+            }
+        }
+    </script>
+</body>
+</html>

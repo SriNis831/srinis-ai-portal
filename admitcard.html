@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admit Card Generator (Pro) - Srinis AI</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Poppins', sans-serif; margin: 0; padding: 20px; padding-bottom: 120px; background: linear-gradient(135deg, #eaddff, #fbcfe8); min-height: 100vh; }
+        .controls { background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 16px; box-shadow: 0 10px 35px rgba(0,0,0,0.05); max-width: 900px; margin: 0 auto; }
+        h2 { text-align: center; color: #1e3a8a; margin-top: 0; }
+        
+        .info-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 15px; margin-bottom: 20px; font-size: 0.9rem; color: #475569;}
+        .input-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
+        .input-group { display: flex; flex-direction: column; flex: 1; min-width: 250px; }
+        .input-group label { font-size: 0.85rem; font-weight: bold; margin-bottom: 5px; color: #334155; }
+        .input-group select, .input-group input { padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; font-family: inherit; }
+
+        .action-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: white; padding: 12px 25px; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; gap: 10px; z-index: 1000; }
+        .btn { padding: 10px 18px; border-radius: 12px; text-decoration: none; font-weight: bold; cursor: pointer; border: none; border-bottom: 4px solid; color: #1e293b; font-family: inherit; }
+        .btn-nav { background: #e0f2fe; border-color: #bae6fd; }
+        .btn-gen { background: #dcfce7; border-color: #bbf7d0; color: #166534; }
+        .btn-prt { background: #f3e8ff; border-color: #e9d5ff; color: #6b21a8; }
+
+        /* Modal Styles for Cropper */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.85); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 600px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .crop-container { width: 100%; max-height: 400px; background: #f1f5f9; border-radius: 8px; overflow: hidden; margin-bottom: 15px; display: flex; justify-content: center; align-items: center;}
+        .crop-container img { max-width: 100%; max-height: 400px; }
+
+        /* 8-in-1 Print Grid Layout */
+        #print-container { display: flex; flex-direction: column; align-items: center; margin-top: 20px; }
+        .print-page { 
+            width: 210mm; 
+            height: 297mm; 
+            background: white; 
+            padding: 5mm; 
+            box-sizing: border-box; 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            grid-template-rows: repeat(4, 69mm); 
+            gap: 4mm; 
+            page-break-after: always; 
+        }
+        
+        @media print {
+            @page { size: A4 portrait; margin: 0; }
+            body { background: white; padding: 0; }
+            .controls, .action-bar, .modal-overlay { display: none !important; }
+            #print-container { margin: 0; }
+            .print-page { box-shadow: none; border: none; margin: 0; }
+            /* Force Printers to print background colors */
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <h2>🎨 Pro Colorful Admit Cards (8/Page)</h2>
+        <div class="info-box">
+            <b>School:</b> <span id="disp_school">Loading...</span> | <b>Exam:</b> <span id="disp_exam">Loading...</span>
+        </div>
+        
+        <div class="input-row">
+            <div class="input-group" style="flex: 2;">
+                <label>Choose Class from Master Database</label>
+                <select id="classSelector"><option value="">-- Select Class --</option></select>
+            </div>
+            <div class="input-group" style="flex: 2;">
+                <label>Exam Instructions (Prints on all cards)</label>
+                <input type="text" id="examTiming" value="Bring this card daily. No electronics allowed.">
+            </div>
+        </div>
+
+        <div class="input-row" style="background: #f1f5f9; padding: 15px; border-radius: 10px; border: 1px solid #cbd5e1;">
+            <div class="input-group">
+                <label>Left Signature Title & Upload</label>
+                <input type="text" id="leftSignText" value="Class Teacher" placeholder="e.g. Class Teacher" style="margin-bottom: 8px; padding: 8px; font-size: 0.85rem;">
+                <input type="file" accept="image/*" onchange="openCropper(event, 'left')" style="background: #fff; cursor: pointer; padding: 6px; font-size: 0.8rem;">
+                <img id="leftSignPreview" style="display: none; max-height: 35px; margin-top: 8px; border: 1px dashed #94a3b8; padding: 2px; border-radius: 4px; background: white;" alt="Left Sign Preview">
+            </div>
+            
+            <div class="input-group">
+                <label>Right Signature Title & Upload</label>
+                <input type="text" id="rightSignText" value="Principal Seal" placeholder="e.g. Principal Seal" style="margin-bottom: 8px; padding: 8px; font-size: 0.85rem;">
+                <input type="file" accept="image/*" onchange="openCropper(event, 'right')" style="background: #fff; cursor: pointer; padding: 6px; font-size: 0.8rem;">
+                <img id="rightSignPreview" style="display: none; max-height: 35px; margin-top: 8px; border: 1px dashed #94a3b8; padding: 2px; border-radius: 4px; background: white;" alt="Right Sign Preview">
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="cropModal">
+        <div class="modal-box">
+            <h3 style="margin-top: 0; color: #1e3a8a; border-bottom: 1px solid #cbd5e1; padding-bottom: 10px;">✂️ Crop Signature</h3>
+            <div class="crop-container">
+                <img id="imageToCrop" src="" alt="Crop Area">
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button onclick="closeCropper()" class="btn" style="background: #e2e8f0; border-color: #cbd5e1;">Cancel</button>
+                <button onclick="applyCrop()" class="btn" style="background: #3b82f6; border-color: #2563eb; color: white;">✂️ Crop & Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-bar">
+        <a href="exam.html" class="btn btn-nav">🏠 Exam Home</a>
+        <a href="setup.html" class="btn btn-nav">🏫 Setup DB</a>
+        <button class="btn btn-gen" onclick="generateAdmitCards()">⚙️ Generate Cards</button>
+        <button class="btn btn-prt" onclick="window.print()">🖨️ Print Layout</button>
+		<a href="index.html" class="btn btn-nav">🏠 Main Home</a>
+    </div>
+
+    <div id="print-container"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
+    
+    <script>
+        let masterDB = JSON.parse(localStorage.getItem('examMasterDB'));
+        
+        let leftSignBase64 = ""; 
+        let rightSignBase64 = "";
+        
+        let cropper;
+        let currentCropTarget = ""; 
+
+        window.onload = function() {
+            if(!masterDB) { alert("Please complete Master Data Setup first!"); window.location.href = "setup.html"; return; }
+            
+            document.getElementById('disp_school').innerText = masterDB.school || "Not Set";
+            document.getElementById('disp_exam').innerText = masterDB.exam || "Not Set";
+
+            let classSelect = document.getElementById('classSelector');
+            if(masterDB.classes && masterDB.classes.length > 0) {
+                masterDB.classes.forEach((c, index) => {
+                    let opt = document.createElement('option');
+                    opt.value = index;
+                    opt.innerHTML = `${c.name} ${c.sec ? 'Sec '+c.sec : ''} ${c.sub ? '('+c.sub+')' : ''} [Roll: ${c.start || 'N/A'} to ${c.end || 'N/A'}]`;
+                    classSelect.appendChild(opt);
+                });
+            }
+        };
+
+        // --- CROPPER LOGIC ---
+        function openCropper(event, target) {
+            let file = event.target.files[0];
+            if (!file) return;
+            currentCropTarget = target;
+            
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let img = document.getElementById('imageToCrop');
+                img.src = e.target.result;
+                document.getElementById('cropModal').style.display = 'flex';
+                
+                if(cropper) cropper.destroy();
+                cropper = new Cropper(img, {
+                    viewMode: 1,
+                    autoCropArea: 1,
+                    background: false,
+                    zoomable: false
+                });
+            };
+            reader.readAsDataURL(file);
+            event.target.value = ""; 
+        }
+
+        function closeCropper() {
+            document.getElementById('cropModal').style.display = 'none';
+            if(cropper) cropper.destroy();
+        }
+
+        function applyCrop() {
+            if(!cropper) return;
+            let canvas = cropper.getCroppedCanvas({ width: 300 }); 
+            let base64 = canvas.toDataURL('image/png');
+            
+            if(currentCropTarget === 'left') {
+                leftSignBase64 = base64;
+                document.getElementById('leftSignPreview').src = base64;
+                document.getElementById('leftSignPreview').style.display = 'block';
+            } else {
+                rightSignBase64 = base64;
+                document.getElementById('rightSignPreview').src = base64;
+                document.getElementById('rightSignPreview').style.display = 'block';
+            }
+            closeCropper();
+        }
+
+        // --- EXCEL DATE FIX FUNCTION ---
+        function formatExcelDate(dobStr) {
+            if (!dobStr) return "__________";
+            if (!isNaN(dobStr) && Number(dobStr) > 10000) {
+                let date = new Date(Math.round((dobStr - 25569) * 86400 * 1000));
+                let d = String(date.getDate()).padStart(2, '0');
+                let m = String(date.getMonth() + 1).padStart(2, '0');
+                let y = date.getFullYear();
+                return `${d}-${m}-${y}`; 
+            }
+            return dobStr;
+        }
+
+        function generateAdmitCards() {
+            if(!masterDB) return;
+            let selectedIndex = document.getElementById('classSelector').value;
+            if(selectedIndex === "") { alert("Please select a class first!"); return; }
+
+            let selectedClass = masterDB.classes[selectedIndex];
+            let schoolName = masterDB.school || "School Name";
+            let examName = masterDB.exam || "Exam Name";
+            let timing = document.getElementById('examTiming').value;
+            
+            let leftSignTitle = document.getElementById('leftSignText').value || "Class Teacher";
+            let rightSignTitle = document.getElementById('rightSignText').value || "Principal Seal";
+
+            let classAndSec = selectedClass.name + (selectedClass.sec ? `-${selectedClass.sec}` : ''); 
+            let nsoArray = selectedClass.nso ? selectedClass.nso.split(',').map(n => parseInt(n.trim())) : [];
+
+            let validStudents = [];
+            
+            if(selectedClass.students) {
+                selectedClass.students.forEach(s => {
+                    if(!nsoArray.includes(parseInt(s.roll))) {
+                        validStudents.push({
+                            roll: s.roll, name: s.name || "________________", father: s.father || "________________",
+                            mother: s.mother || "________________", dob: formatExcelDate(s.dob) 
+                        });
+                    }
+                });
+            } else {
+                let start = parseInt(selectedClass.start);
+                let end = parseInt(selectedClass.end);
+                for(let i = start; i <= end; i++) {
+                    if(!nsoArray.includes(i)) {
+                        validStudents.push({ roll: i, name: "________________", father: "________________", mother: "________________", dob: "__________" });
+                    }
+                }
+            }
+
+            if(validStudents.length === 0) { alert("No valid students found in this class!"); return; }
+
+            const container = document.getElementById('print-container');
+            container.innerHTML = '';
+
+            let chunkSize = 8; 
+            for(let i = 0; i < validStudents.length; i += chunkSize) {
+                let chunk = validStudents.slice(i, i + chunkSize);
+                let pageHTML = `<div class="print-page">`;
+                
+                chunk.forEach(student => {
+                    let leftImgHTML = leftSignBase64 ? `<img src="${leftSignBase64}" style="position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); max-height: 24px; max-width: 75px; margin-bottom: 2px;">` : '';
+                    let rightImgHTML = rightSignBase64 ? `<img src="${rightSignBase64}" style="position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); max-height: 24px; max-width: 75px; margin-bottom: 2px;">` : '';
+
+                    pageHTML += `
+                    <div style="border: 2px solid #2563eb; border-radius: 10px; display: flex; flex-direction: column; position: relative; overflow: hidden; background: #ffffff; height: 100%; box-sizing: border-box; page-break-inside: avoid;">
+                        
+                        <div style="position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 2rem; color: rgba(37, 99, 235, 0.05); font-weight: 900; z-index: 0; white-space: nowrap; pointer-events: none;">
+                            ${schoolName.substring(0, 15)}
+                        </div>
+                        
+                        <div style="text-align: center; background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; padding: 6px 5px; z-index: 1; border-bottom: 3px solid #f59e0b;">
+                            <div style="font-size: 0.85rem; font-weight: 900; text-transform: uppercase; line-height: 1.1; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">${schoolName}</div>
+                            <div style="font-size: 0.6rem; font-weight: bold; color: #bfdbfe; margin-top: 2px; letter-spacing: 0.5px;">${examName}</div>
+                        </div>
+
+                        <div style="padding: 6px 10px 8px 10px; display: flex; flex-direction: column; flex-grow: 1; z-index: 1;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 4px 8px; margin-bottom: 8px;">
+                                <div style="font-size: 0.7rem; font-weight: bold; color: #166534;">Class: <span style="color: #b45309; font-size: 0.75rem;">${classAndSec}</span></div>
+                                <div style="background: #ef4444; color: #fff; padding: 2px 10px; border-radius: 4px; font-size: 0.55rem; font-weight: bold; letter-spacing: 0.5px; box-shadow: 0 1px 2px rgba(0,0,0,0.2);">ADMIT CARD</div>
+                                <div style="font-size: 0.7rem; font-weight: bold; color: #1e293b;">Roll No: <span style="background: #fee2e2; color: #b91c1c; padding: 1px 5px; border-radius: 4px; font-size: 0.85rem; font-weight: 900;">${student.roll}</span></div>
+                            </div>
+
+                            <div style="display: flex; gap: 12px; flex-grow: 1;">
+                                <div style="display: flex; flex-direction: column; gap: 4px; align-items: center;">
+                                    <div style="width: 52px; height: 60px; border: 2px dashed #93c5fd; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #eff6ff; flex-shrink: 0;">
+                                        <span style="font-size: 0.45rem; color: #3b82f6;">Affix</span>
+                                        <span style="font-size: 0.55rem; color: #1e3a8a; font-weight: bold;">PHOTO</span>
+                                    </div>
+                                    <svg class="barcode-target" data-roll="${student.roll}" style="width: 52px; height: 16px;"></svg>
+                                </div>
+                                
+                                <div style="font-size: 0.68rem; line-height: 1.6; width: 100%; display: flex; flex-direction: column;">
+                                    <div style="display: flex; border-bottom: 1px dashed #cbd5e1; padding-bottom: 1px;">
+                                        <span style="width: 50px; font-weight: bold; color: #0284c7;">Name</span>
+                                        <span style="color: #0f172a; font-weight: bold;">: ${student.name}</span>
+                                    </div>
+                                    <div style="display: flex; border-bottom: 1px dashed #cbd5e1; padding-bottom: 1px; margin-top: 2px;">
+                                        <span style="width: 50px; font-weight: bold; color: #0284c7;">Father</span>
+                                        <span style="color: #0f172a;">: ${student.father}</span>
+                                    </div>
+                                    <div style="display: flex; border-bottom: 1px dashed #cbd5e1; padding-bottom: 1px; margin-top: 2px;">
+                                        <span style="width: 50px; font-weight: bold; color: #0284c7;">Mother</span>
+                                        <span style="color: #0f172a;">: ${student.mother}</span>
+                                    </div>
+                                    <div style="display: flex; border-bottom: 1px dashed #cbd5e1; padding-bottom: 1px; margin-top: 2px;">
+                                        <span style="width: 50px; font-weight: bold; color: #0284c7;">DOB</span>
+                                        <span style="color: #b91c1c; font-weight: bold;">: ${student.dob}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="font-size: 0.5rem; color: #64748b; margin-top: auto; padding-top: 4px; text-align: center;">
+                                <b>Note:</b> ${timing}
+                            </div>
+                            
+                            <div style="display: flex; justify-content: space-between; font-size: 0.55rem; font-weight: bold; margin-top: 15px; color: #1e293b;">
+                                <div style="border-top: 1px solid #94a3b8; width: 80px; text-align: center; padding-top: 2px; position: relative;">
+                                    ${leftImgHTML}
+                                    ${leftSignTitle}
+                                </div>
+                                
+                                <div style="border-top: 1px solid #94a3b8; width: 80px; text-align: center; padding-top: 2px; position: relative;">
+                                    ${rightImgHTML}
+                                    ${rightSignTitle}
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+                pageHTML += `</div>`;
+                container.insertAdjacentHTML('beforeend', pageHTML);
+            }
+
+            // TRIGGER JSBARCODE
+            setTimeout(() => { 
+                document.querySelectorAll('.barcode-target').forEach(svg => {
+                    let roll = svg.getAttribute('data-roll');
+                    JsBarcode(svg, roll, {
+                        format: "CODE128",
+                        width: 1.2,
+                        height: 20,
+                        displayValue: false, 
+                        margin: 0,
+                        lineColor: "#0f172a"
+                    });
+                });
+                document.querySelector(".action-bar").scrollIntoView({ behavior: 'smooth' }); 
+            }, 100);
+        }
+    </script>
+</body>
+</html>
