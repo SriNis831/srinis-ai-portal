@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Master Dashboard - SRINIS AI</title>
     <style>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
         body { font-family: 'Segoe UI', sans-serif; background: #e9ecef; margin: 0; padding-bottom: 80px; }
         
         /* --- NAVIGATION BAR --- */
@@ -127,6 +128,20 @@
 
     <div class="card">
         <h3>3. Student Entry</h3>
+        
+        <div style="background: #eef2f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px dashed #bdc3c7; display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 200px;">
+                <label>Upload Bulk Data (Excel)</label>
+                <input type="file" id="excel_file" accept=".xlsx, .xls" style="padding: 8px; background: white;">
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button onclick="processExcel()" style="background: #8e44ad;">📥 Upload Excel</button>
+                <button onclick="downloadDemoExcel()" style="background: #2c3e50;">⬇️ Demo File</button>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 15px; font-weight: bold; color: #7f8c8d;">--- OR MANUAL ENTRY ---</div>
+
         <div class="student-row-input">
             <input type="text" id="s_name" placeholder="Student Name" oninput="validateText(this)">
             <input type="text" id="s_father" placeholder="Father Name" oninput="validateText(this)">
@@ -272,6 +287,62 @@
             window.location.href = `mailto:${userEmail}?subject=Master Data - ${schName}&body=Please find attached the data.`;
         }, 1000);
     }
+    // --- EXCEL UPLOAD & DEMO FUNCTIONS ---
+    function downloadDemoExcel() {
+        const ws_data = [
+            ["Student Name", "Father Name", "Aadhar No", "Reg/Roll No"], // Headers
+            ["Rahul Kumar", "Ramesh Kumar", "123456789012", "101"],     // Demo Row 1
+            ["Priya Sharma", "Suresh Sharma", "987654321098", "102"]      // Demo Row 2
+        ];
+        const ws = XLSX.utils.aoa_to_sheet(ws_data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Students");
+        XLSX.writeFile(wb, "Demo_Student_Entry.xlsx");
+    }
+
+    function processExcel() {
+        const fileInput = document.getElementById('excel_file');
+        const file = fileInput.files[0];
+        
+        if (!file) {
+            alert("Please select an Excel file first!");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            
+            // Convert to Array (Row by Row)
+            const json = XLSX.utils.sheet_to_json(firstSheet, {header: 1}); 
+            
+            let newStudentsCount = 0;
+            // i=1 means we skip the Header row (Row 0)
+            for (let i = 1; i < json.length; i++) {
+                let row = json[i];
+                if (!row || row.length === 0 || !row[0]) continue; // Skip empty rows
+                
+                let name = String(row[0] || "").trim();
+                let father = String(row[1] || "").trim();
+                let aadhar = String(row[2] || "").trim();
+                let roll = String(row[3] || "").trim();
+                
+                students.push({ n: name, f: father, a: aadhar, r: roll });
+                newStudentsCount++;
+            }
+            
+            if (newStudentsCount > 0) {
+                alert(newStudentsCount + " Students added successfully!");
+                renderList(); // Update Table
+                fileInput.value = ""; // Clear file input
+            } else {
+                alert("No valid student data found in the file.");
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
 
     window.onload = loadForm;
 </script>
@@ -280,4 +351,5 @@
     Optimized for Mobile & Desktop
 </footer>
 </body>
+
 </html>
