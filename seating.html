@@ -7,113 +7,76 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        :root {
-            --primary: #2563eb; --primary-dark: #1d4ed8;
-            --success: #059669; --success-dark: #047857;
-            --danger: #ef4444; --danger-dark: #b91c1c;
-            --warning: #f59e0b;
-            --bg: #f8fafc;
-        }
-
-        body { 
-            font-family: 'Poppins', sans-serif; margin: 0; padding: 20px; 
-            padding-bottom: 120px; background: linear-gradient(135deg, #eaddff, #fbcfe8);
-            min-height: 100vh; overflow-x: hidden; 
-        }
-
-        .controls { 
-            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
-            padding: 20px; border-radius: 16px; box-shadow: 0 10px 35px rgba(0,0,0,0.05); 
-            border: 1px solid #e2e8f0; max-width: 950px; margin: 0 auto 20px auto; width: 100%; box-sizing: border-box;
-        }
-
+        :root { --primary:#2563eb; --success:#059669; --danger:#ef4444; --warning:#f59e0b; --bg:#f8fafc; }
+        body { font-family: 'Poppins', sans-serif; margin: 0; padding: 20px; padding-bottom: 120px; background: linear-gradient(135deg, #eaddff, #fbcfe8); min-height: 100vh; overflow-x: hidden; }
+        
+        .controls { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 20px; border-radius: 16px; box-shadow: 0 10px 35px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; max-width: 950px; margin: 0 auto 20px auto; width: 100%; box-sizing: border-box; }
         .controls h2 { margin-top: 0; color: #1e3a8a; font-weight: 800; text-align: center; font-size: 1.8rem; margin-bottom: 5px; }
         .subtitle { text-align: center; color: var(--success); font-weight: 600; margin-bottom: 20px; font-size: 0.95rem; }
         
         .section-box { background: #ffffff; border: 1px solid #cbd5e1; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-sizing: border-box;}
         .section-box h3 { margin-top: 0; color: #b45309; font-size: 1.2rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 15px; }
-
         .info-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 15px; margin-bottom: 20px;}
         .info-box h4 { margin: 0 0 10px 0; color: #92400e; font-size: 1.1rem; }
         .info-details { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.95rem; color: #475569; }
         .info-details strong { color: #1e293b; }
-
         .input-group { display: flex; flex-direction: column; flex: 1; min-width: 140px;}
         .input-group label { font-size: 0.85rem; font-weight: 700; margin-bottom: 4px; color: #475569; }
+        .input-group select, .r-name, .r-rows, .r-desks, .r-extra { padding: 10px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; font-family: inherit; color: #0f172a; transition: all 0.2s; box-sizing: border-box; }
         
-        .input-group select, .r-name, .r-rows, .r-desks, .r-extra { 
-            padding: 10px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; font-family: inherit; color: #0f172a; transition: all 0.2s; box-sizing: border-box;
-        }
-
         .room-entry { display: flex; gap: 10px; align-items: center; background: #f1f5f9; padding: 10px 15px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; flex-wrap: wrap; }
         .r-extra { background: #fef08a !important; border-color: #eab308 !important; font-weight: 700; width: 80px !important; color: #713f12 !important;}
-
         button { font-family: inherit; cursor: pointer; border: none; transition: transform 0.1s; }
-        .btn-add-room { background: var(--success); color: white; padding: 10px 18px; border-radius: 8px; font-weight: bold; box-shadow: 0 4px 0 var(--success-dark); margin-bottom: 5px; font-size: 0.95rem;}
-        .btn-add-room:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--success-dark); }
+        .btn-add-room { background: var(--success); color: white; padding: 10px 18px; border-radius: 8px; font-weight: bold; box-shadow: 0 4px 0 #047857; margin-bottom: 5px; font-size: 0.95rem;}
+        .btn-add-room:active { transform: translateY(4px); box-shadow: 0 0px 0 #047857; }
         .btn-remove { background: var(--danger); color: white; width: 35px; height: 35px; border-radius: 6px; font-weight: bold; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; }
 
         .tracker-box { background: linear-gradient(to right, #0f172a, #1e293b); color: white; padding: 15px 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: 1.1rem; font-weight: 700; border: 1px solid #334155; }
         .tracker-status { padding: 6px 15px; border-radius: 8px; background: var(--success); text-align: center;}
         .tracker-status.danger { background: var(--danger); }
 
-        .action-bar { 
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); 
-            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); 
-            padding: 12px 25px; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
-            display: flex; gap: 15px; z-index: 1000; border: 1px solid rgba(255,255,255,0.5);
-            flex-wrap: wrap; justify-content: center; width: max-content;
-        }
-        .action-bar button, .action-bar a { 
-            text-decoration: none; border: none; padding: 10px 20px; border-radius: 12px;
-            font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 0.95rem; cursor: pointer;
-            display: flex; align-items: center; gap: 8px; transition: all 0.1s ease; color: #1e293b;
-        }
+        .action-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 12px 25px; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; gap: 15px; z-index: 1000; border: 1px solid rgba(255,255,255,0.5); flex-wrap: wrap; justify-content: center; width: max-content; }
+        .action-bar button, .action-bar a { text-decoration: none; border: none; padding: 10px 20px; border-radius: 12px; font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.1s ease; color: #1e293b; }
         .btn-home { background: #e0f2fe; border-bottom: 4px solid #bae6fd; }
         .btn-edit { background: #fff7ed; border-bottom: 4px solid #fed7aa; color: #9a3412 !important; }
         .btn-gen { background: #dcfce7; border-bottom: 4px solid #bbf7d0; }
         .btn-prt { background: #f3e8ff; border-bottom: 4px solid #e9d5ff; }
         .btn-clr { background: #fee2e2; border-bottom: 4px solid #fecaca; color: #991b1b !important; }
-
         .ui-footer { text-align: center; padding: 30px 20px 100px 20px; color: #64748b; font-weight: 600; }
         .ui-footer span { color: #1e3a8a; font-weight: 800; font-size: 1.2rem; }
 
-        /* PREVIEW STYLES */
+        /* PRINT STYLES */
         #print-container { display: flex; flex-direction: column; align-items: center; gap: 30px; margin-top: 40px; max-width: 100vw; overflow-x: auto; padding-bottom: 20px; }
-        .print-page { 
-            display: flex; flex-direction: column; justify-content: space-between; 
-            width: 210mm; min-width: 210mm; min-height: 297mm; background: white; padding: 15mm; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15); border-radius: 5px; box-sizing: border-box; position: relative; 
-        }
+        .print-page { display: flex; flex-direction: column; justify-content: space-between; width: 210mm; min-width: 210mm; min-height: 297mm; background: white; padding: 15mm; box-shadow: 0 15px 35px rgba(0,0,0,0.15); border-radius: 5px; box-sizing: border-box; position: relative; }
         .page-content { flex-grow: 1; }
         .header-tbl { width: 100%; border-collapse: collapse; text-align: center; border: 2px solid #000; margin-bottom: 15px;}
         .header-tbl td { border: 1px solid #000; padding: 6px; }
         .school-name { font-size: 1.4rem; font-weight: 900; padding: 10px !important; text-transform: uppercase;}
-        
-        .seat-table-container { margin-bottom: 20px; }
-        .seat-table { width: 100%; border-collapse: collapse; text-align: center; border: 2px solid #000; }
+        .seat-table { width: 100%; border-collapse: collapse; text-align: center; border: 2px solid #000; margin-bottom: 20px;}
         .seat-table th { border: 1px solid #000; background: #e2e8f0; font-size: 1.1rem; padding: 8px; -webkit-print-color-adjust: exact;}
         .seat-table td { border: 1px solid #000; font-size: 1.2rem; font-weight: bold; padding: 10px 5px; }
         .empty-gap { background: #f1f5f9; color: #cbd5e1 !important; font-size: 0.8rem !important; }
         .adjusted-row td { background: #fef08a !important; padding: 8px; font-size: 1.1rem; text-align: left; -webkit-print-color-adjust: exact;}
-
-        .summary-box { margin-top: 20px; border: 2px solid #000; padding: 10px; page-break-inside: avoid; }
-        .summary-tbl { width: 100%; border-collapse: collapse; text-align: left; }
+        .summary-tbl { width: 100%; border-collapse: collapse; text-align: left; border: 2px solid #000; margin-top:20px; page-break-inside: avoid; }
         .summary-tbl th, .summary-tbl td { border: 1px solid #000; padding: 6px; font-size: 0.95rem; }
         .summary-tbl th { background: #e2e8f0; -webkit-print-color-adjust: exact; }
-
-        .bottom-section { margin-top: auto; page-break-inside: avoid; }
-        .signatures { display: flex; justify-content: space-between; font-weight: bold; font-size: 1.1rem; padding: 0 10px; padding-top: 20px; padding-bottom: 15px;}
+        .signatures { display: flex; justify-content: space-between; font-weight: bold; font-size: 1.1rem; padding: 0 10px; padding-top: 15px; padding-bottom: 10px;}
         .print-footer { text-align: center; font-size: 0.8rem; color: #64748b; border-top: 1px dashed #cbd5e1; padding-top: 5px; font-style: italic; }
-
-        .master-title { text-align: center; font-size: 1.3rem; text-decoration: underline; margin: 15px 0; font-weight: bold; }
-        .master-tbl { width: 100%; border-collapse: collapse; margin-top: 10px; text-align: center;}
+        .master-tbl { width: 100%; border-collapse: collapse; margin-top: 10px; text-align: center; border: 2px solid #000;}
         .master-tbl th, .master-tbl td { border: 1px solid #000; padding: 8px; font-size: 1rem; }
         .master-tbl th { background: #f1f5f9; -webkit-print-color-adjust: exact;}
-        
-        .att-tbl { width: 100%; border-collapse: collapse; text-align: left; margin-bottom: 5px;}
+        .att-tbl { width: 100%; border-collapse: collapse; text-align: left; border: 2px solid #000;}
         .att-tbl th, .att-tbl td { border: 1px solid #000; padding: 5px 6px; font-size: 0.95rem; height: 26px;}
-        .att-tbl th { background: #e2e8f0; text-align: center; -webkit-print-color-adjust: exact; padding: 6px; font-size: 1rem;}
+        .att-tbl th { background: #e2e8f0; text-align: center; -webkit-print-color-adjust: exact; font-size: 1rem;}
+
+        /* CSS Utilities for JS rendering (Saves space) */
+        .tc { text-align: center; } .tl { text-align: left; } .tr { text-align: right; }
+        .fw-b { font-weight: bold; } .fw-9 { font-weight: 900; }
+        .fs-sm { font-size: 0.85rem; } .fs-md { font-size: 1.1rem; } .fs-lg { font-size: 1.3rem; }
+        .red { color: #dc2626; } .blue { color: #1e3a8a; } .brown { color: #b45309; }
+        .nso-bg { background-color: #fef2f2 !important; -webkit-print-color-adjust: exact; }
+        .muted { color: #94a3b8; }
+        .tot-box { font-weight: bold; background: #e2e8f0; padding: 4px 10px; border-radius: 4px; margin-left: 10px; white-space: nowrap; font-size: 1.1rem; border: 1px solid #000; -webkit-print-color-adjust: exact;}
 
         @media screen and (max-width: 768px) {
             body { padding: 10px; padding-bottom: 180px; }
@@ -121,14 +84,13 @@
             .info-details { grid-template-columns: 1fr; }
             .section-box { display: block !important; padding: 15px; }
             .input-group { width: 100%; margin-bottom: 15px; max-width: none !important; }
-            .tracker-box { flex-direction: column; gap: 10px; font-size: 1rem; padding: 15px;}
-            .tracker-status { width: 100%; }
-            .room-entry { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; align-items: center; }
+            .tracker-box { flex-direction: column; gap: 10px; padding: 15px;}
+            .room-entry { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
             .r-name { grid-column: span 3; }
             .r-rows, .r-desks, .r-extra { width: 100% !important; margin:0;}
             .btn-remove { grid-column: span 3; width: 100%; margin-top: 5px; }
-            .action-bar { width: 92%; border-radius: 16px; padding: 10px; gap: 8px; flex-direction: row; flex-wrap: wrap; justify-content: space-between; box-sizing: border-box; }
-            .action-bar button, .action-bar a { width: 48%; padding: 10px 5px; font-size: 0.85rem; justify-content: center; flex: 1 1 45%; box-sizing: border-box; }
+            .action-bar { width: 92%; border-radius: 16px; padding: 10px; gap: 8px; flex-direction: row; flex-wrap: wrap; justify-content: space-between;}
+            .action-bar button, .action-bar a { width: 48%; padding: 10px 5px; font-size: 0.85rem; justify-content: center; flex: 1 1 45%; }
             .btn-clr { flex: 1 1 100% !important; }
         }
 
@@ -148,6 +110,7 @@
     </style>
 </head>
 <body>
+
     <div class="controls" id="input-area">
         <h2>🪑 Seating & Attendance Planner</h2>
         <div class="subtitle">Data linked directly from Master Setup</div>
@@ -201,7 +164,7 @@
         <a href="setup.html" class="btn-edit">🏫 School Profile</a>
         <button class="btn-gen" onclick="generateAllRooms()">⚙️ Generate Plan</button>
         <button class="btn-prt" onclick="downloadOrPrintPDF()">🖨️ Print Layout</button>
-        <button class="btn-clr" onclick="clearRooms()" title="Clear Rooms">🗑️ Clear</button>
+        <button class="btn-clr" onclick="clearRooms()">🗑️ Clear</button>
     </div>
 
     <div id="print-container"></div>
@@ -228,21 +191,15 @@
                     let allSt = [];
                     if(c.students) {
                         c.students.forEach(s => {
-                            if(!c.nso || !c.nso.includes(s.roll)) {
-                                allSt.push({ roll: s.roll, name: s.name, section: "", isNSO: false });
-                            }
+                            if(!c.nso || !c.nso.includes(s.roll)) allSt.push({ roll: s.roll, name: s.name, section: "", isNSO: false });
                         });
                     } else {
                         let nsoArray = c.nso ? c.nso.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n)) : [];
                         if(c.start && c.end) {
-                            for(let i = c.start; i <= c.end; i++) {
-                                allSt.push({ roll: i, section: "", isNSO: nsoArray.includes(i) });
-                            }
+                            for(let i = c.start; i <= c.end; i++) allSt.push({ roll: i, section: "", isNSO: nsoArray.includes(i) });
                         }
                     }
-                    if(allSt.length > 0) {
-                        globalClassesData.push({ id: 'cls_'+idx, className: c.name, subject: c.sub, allStudents: allSt, index: 0 });
-                    }
+                    if(allSt.length > 0) globalClassesData.push({ id: 'cls_'+idx, className: c.name, subject: c.sub, allStudents: allSt, index: 0 });
                 });
             }
 
@@ -256,11 +213,10 @@
             if(savedRoomsJSON) {
                 try {
                     let roomsArray = JSON.parse(savedRoomsJSON);
-                    if(roomsArray.length > 0) {
-                        roomsArray.forEach(r => addRoomInput(r.name, r.rows, r.desks, r.extra, false));
-                    } else addRoomInput("Room", "", "", "0", false);
+                    if(roomsArray.length > 0) roomsArray.forEach(r => addRoomInput(r.name, r.rows, r.desks, r.extra, false));
+                    else addRoomInput("Room", "", "", "0", false);
                 } catch(e) { addRoomInput("Room", "", "", "0", false); }
-            } else { addRoomInput("Room", "", "", "0", false); }
+            } else addRoomInput("Room", "", "", "0", false);
 
             updateLiveTracker();
         };
@@ -314,7 +270,8 @@
                 let r = parseInt(entry.querySelector('.r-rows').value) || 0;
                 let d = parseInt(entry.querySelector('.r-desks').value) || 0;
                 let e = parseInt(entry.querySelector('.r-extra').value) || 0; 
-                let cap = pattern === 'gap' ? Math.ceil((r * d) / 2) : (r * d);
+                let cap = r * d;
+                if (pattern === 'gap') cap = Math.ceil(cap / 2);
                 totalCapacity += (cap + e);
             });
 
@@ -350,7 +307,6 @@
             const eDate = masterDB.date || "Date";
             const inchargeName = masterDB.incharge || "________________"; 
             const pattern = document.getElementById('pattern').value;
-            const distribution = document.getElementById('distribution').value;
 
             let teacherPool = masterDB.teachers ? masterDB.teachers.split(',').map(t => t.trim()).filter(t => t !== "") : [];
             shuffle(teacherPool); 
@@ -373,24 +329,17 @@
                 let rows = parseInt(entry.querySelector('.r-rows').value) || 0; 
                 let desks = parseInt(entry.querySelector('.r-desks').value) || 0; 
                 let extra = parseInt(entry.querySelector('.r-extra').value) || 0; 
-                if(rows > 0 && desks > 0) {
-                    rooms.push({ name: entry.querySelector('.r-name').value || "Room", rows: rows, desks: desks, extra: extra });
-                }
+                if(rows > 0 && desks > 0) rooms.push({ name: entry.querySelector('.r-name').value || "Room", rows, desks, extra });
             });
 
-            const container = document.getElementById('print-container');
-            container.innerHTML = ''; 
-
-            let masterSummaryData = []; let dutyListData = []; let groupedPagesHTML = '';
+            let masterSummaryData = []; let dutyListData = []; let HTML = '';
             let lastStreamPlaced = 0; 
 
             rooms.forEach((room, rIdx) => {
                 if (activeStreams.every(s => s.index >= s.students.length)) return;
-
                 let assignedTeacher = teacherPool[rIdx] || "________________";
                 let grid = Array.from({length: room.desks}, () => Array(room.rows).fill("-"));
-                let flatRoomRollsForAttendance = [];
-                let adjustedList = [];
+                let flatRoomRollsForAttendance = []; let adjustedList = [];
 
                 for (let c = 0; c < room.rows; c++) {
                     let reverse = (pattern === 'snake' && c % 2 === 1);
@@ -398,7 +347,6 @@
                     for (let d = 0; d < room.desks; d++) {
                         let deskIndex = reverse ? (room.desks - 1 - d) : d;
                         if (pattern === 'gap' && (c + deskIndex) % 2 !== 0) { grid[deskIndex][c] = "GAP"; continue; }
-
                         for(let i = 0; i < activeStreams.length; i++) {
                             let sIdx = (preferredClassIdx + i) % activeStreams.length;
                             let stream = activeStreams[sIdx];
@@ -429,9 +377,7 @@
                             let st = stream.students[stream.index++];
                             flatRoomRollsForAttendance.push(st);
                             adjustedList.push(`<b>${st.roll}</b> (${st.fullClassName})`);
-                            lastStreamPlaced = sIdx;
-                            assigned = true;
-                            break;
+                            lastStreamPlaced = sIdx; assigned = true; break;
                         }
                     }
                     if(!assigned) break;
@@ -444,15 +390,14 @@
                     else roomClassGroups[st.fullClassName].valid.push(st);
                 });
 
-                let totalInRoom = 0, summaryHTMLRows = '', roomMasterSummaries = [];
+                let totalInRoom = 0, summaryRows = '', roomMasterSummaries = [];
                 let sortedClassNames = Object.keys(roomClassGroups).sort((a,b) => a.localeCompare(b, undefined, {numeric: true, sensitivity: 'base'}));
 
                 sortedClassNames.forEach(className => {
                     let grp = roomClassGroups[className];
-                    let validRolls = grp.valid, nsoRolls = grp.nso;
-                    if(validRolls.length > 0 || nsoRolls.length > 0) {
-                        totalInRoom += validRolls.length;
-                        let sArray = validRolls.map(v=>v.roll).sort((a,b)=>a-b);
+                    if(grp.valid.length > 0 || grp.nso.length > 0) {
+                        totalInRoom += grp.valid.length;
+                        let sArray = grp.valid.map(v=>v.roll).sort((a,b)=>a-b);
                         let sumText = "-";
                         if(sArray.length > 0) {
                             let ranges=[], start=sArray[0], prev=sArray[0];
@@ -462,49 +407,45 @@
                             ranges.push(start===prev?`${start}`:`${start} से ${prev}`);
                             sumText = ranges.join(', ');
                         }
-                        let nsoTextHTML = nsoRolls.length > 0 ? `<br><span style="color: #dc2626; font-size: 0.95rem; display: inline-block; margin-top: 6px;"><b>NSO:</b> ${nsoRolls.join(', ')}</span>` : '';
-                        summaryHTMLRows += `<tr><td><b>${className}</b></td><td style="line-height: 1.6;"><span style="color: #1e3a8a;">${sumText}</span> ${nsoTextHTML}</td><td><b style="font-size: 1.1rem;">${validRolls.length}</b></td></tr>`;
-                        roomMasterSummaries.push({ className: className, summaryText: sumText, total: validRolls.length, nso: nsoRolls });
+                        let nsoHTML = grp.nso.length > 0 ? `<br><span class="red fs-sm fw-b" style="margin-top:6px; display:inline-block;">NSO: ${grp.nso.join(', ')}</span>` : '';
+                        summaryRows += `<tr><td><b>${className}</b></td><td style="line-height:1.6;"><span class="blue fw-b">${sumText}</span> ${nsoHTML}</td><td class="tc"><b class="fs-md">${grp.valid.length}</b></td></tr>`;
+                        roomMasterSummaries.push({ className: className, summaryText: sumText, total: grp.valid.length, nso: grp.nso });
                     }
                 });
 
                 if (totalInRoom === 0 && flatRoomRollsForAttendance.length === 0) return;
+
                 masterSummaryData.push({ roomName: room.name, classSummaries: roomMasterSummaries });
                 dutyListData.push({ room: room.name, teacher: assignedTeacher });
                 
-                let adjustedHTML = adjustedList.length > 0 ? `<tr class="adjusted-row"><td colspan="${room.rows}"><b>अतिरिक्त समायोजित (Extra Seats):</b> ${adjustedList.join(', ')}</td></tr>` : '';
+                let adjHTML = adjustedList.length > 0 ? `<tr class="adjusted-row"><td colspan="${room.rows}"><b>अतिरिक्त समायोजित (Extra Seats):</b> ${adjustedList.join(', ')}</td></tr>` : '';
 
-                groupedPagesHTML += `
+                HTML += `
                 <div class="print-page">
                     <div class="page-content">
                         <table class="header-tbl">
                             <tr><td colspan="4" class="school-name">${sName}</td></tr>
-                            <tr><td colspan="4" style="font-weight:bold;">${eName}</td></tr>
-                            <tr><td colspan="4" style="font-size:0.9rem;">बैठक व्यवस्था - ${eShift}</td></tr>
-                            <tr style="font-weight: bold; font-size: 0.95rem;">
-                                <td style="width: 15%; font-weight: normal;">दिनांक</td><td style="width: 35%;">${eDate}</td>
-                                <td style="width: 20%; font-weight: normal;">कक्ष/हॉल संख्या</td><td style="width: 30%; color: #1e3a8a;">${room.name}</td>
+                            <tr><td colspan="4" class="fw-b">${eName}</td></tr>
+                            <tr><td colspan="4" class="fs-sm">बैठक व्यवस्था - ${eShift}</td></tr>
+                            <tr class="fw-b fs-sm">
+                                <td style="width:15%; font-weight:normal;">दिनांक</td><td style="width:35%;">${eDate}</td>
+                                <td style="width:20%; font-weight:normal;">कक्ष/हॉल संख्या</td><td style="width:30%;" class="blue">${room.name}</td>
                             </tr>
                         </table>
-                        <div class="seat-table-container">
-                            <table class="seat-table">
-                                <thead><tr>${Array.from({length: room.rows}, (_, i) => `<th>Row-${i+1}</th>`).join('')}</tr></thead>
-                                <tbody>
-                                    ${grid.map(row => `<tr>${row.map(seat => {
-                                        if (seat === "GAP") return `<td class="empty-gap">✖</td>`;
-                                        return `<td>${seat === "-" ? "-" : seat.roll}</td>`;
-                                    }).join('')}</tr>`).join('')}
-                                    ${adjustedHTML}
-                                </tbody>
-                            </table>
-                        </div>
+                        <table class="seat-table">
+                            <thead><tr>${Array.from({length: room.rows}, (_, i) => `<th>Row-${i+1}</th>`).join('')}</tr></thead>
+                            <tbody>
+                                ${grid.map(row => `<tr>${row.map(seat => seat === "GAP" ? `<td class="empty-gap">✖</td>` : `<td>${seat === "-" ? "-" : seat.roll}</td>`).join('')}</tr>`).join('')}
+                                ${adjHTML}
+                            </tbody>
+                        </table>
                         <div class="summary-box">
-                            <h4 style="margin: 0 0 5px 0; text-decoration: underline; font-size:1.1rem;">कक्ष समरी (${room.name})</h4>
+                            <h4 style="margin:0 0 5px 0; text-decoration:underline;" class="fs-md">कक्ष समरी (${room.name})</h4>
                             <table class="summary-tbl">
-                                <thead><tr><th style="width: 20%;">कक्षा / विषय</th><th style="width: 65%;">रोल नंबर विवरण (कहाँ से कहाँ तक)</th><th style="width: 15%;">कुल छात्र</th></tr></thead>
+                                <thead><tr><th style="width:20%;">कक्षा</th><th style="width:65%;">रोल नंबर विवरण (कहाँ से कहाँ तक)</th><th style="width:15%;" class="tc">कुल छात्र</th></tr></thead>
                                 <tbody>
-                                    ${summaryHTMLRows}
-                                    <tr style="background: #f1f5f9;"><td colspan="2" style="text-align: right; font-weight: bold; font-size:1.1rem;">कमरे में कुल उपस्थित छात्र:</td><td><b style="font-size:1.1rem;">${totalInRoom}</b></td></tr>
+                                    ${summaryRows}
+                                    <tr style="background:#f1f5f9;"><td colspan="2" class="tr fw-b fs-md">कमरे में कुल उपस्थित छात्र:</td><td class="tc"><b class="fs-md">${totalInRoom}</b></td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -512,7 +453,7 @@
                     <div class="bottom-section">
                         <div class="signatures">
                             <div>हस्ताक्षर वीक्षक<br><small style="font-weight:normal">(Invigilator Sign)</small></div>
-                            <div style="text-align: right;">हस्ताक्षर केन्द्राधीक्षक<br><small style="font-weight:normal">(Center Supdt.)</small></div>
+                            <div class="tr">हस्ताक्षर केन्द्राधीक्षक<br><small style="font-weight:normal">(Center Supdt.)</small></div>
                         </div>
                         <div class="print-footer">Generated by <b>Srinis AI</b></div>
                     </div>
@@ -520,75 +461,57 @@
 
                 flatRoomRollsForAttendance.sort((a,b) => a.fullClassName.localeCompare(b.fullClassName, undefined, {numeric: true, sensitivity: 'base'}) || a.roll - b.roll);
                 
-                const renderTable = (part, offset) => {
-                    let rows = '';
-                    for (let j = 0; j < (part === chunk && chunk.length <= 20 ? chunk.length : 20); j++) {
-                        if (j < part.length) {
-                            let st = part[j];
-                            rows += `<tr style="${st.isNSO ? 'background-color:#fef2f2;-webkit-print-color-adjust:exact;' : ''}">
-                                <td style="text-align:center;font-weight:bold;">${offset + j + 1}</td>
-                                <td><b>${st.fullClassName.replace('Sec: ', '')}</b></td>
-                                <td style="text-align:center;font-weight:bold;font-size:1.1rem;color:${st.isNSO ? '#dc2626' : '#000'};">${st.roll}</td>
-                                <td style="text-align:center;font-weight:900;font-size:1rem;color:#dc2626;letter-spacing:1px;">${st.isNSO ? 'NSO' : ''}</td>
-                            </tr>`;
-                        } else {
-                            rows += `<tr><td style="text-align:center;font-weight:bold;color:#94a3b8;">${offset + j + 1}</td><td></td><td></td><td></td></tr>`;
-                        }
-                    }
-                    return rows;
+                const mkRow = (st, i, offset) => {
+                    if(!st) return `<tr><td class="tc fw-b muted">${offset+i+1}</td><td></td><td></td><td></td></tr>`;
+                    return `<tr class="${st.isNSO?'nso-bg':''}">
+                        <td class="tc fw-b">${offset+i+1}</td>
+                        <td class="fs-sm fw-b">${st.fullClassName.replace('Sec: ','')}</td>
+                        <td class="tc fw-b fs-md ${st.isNSO?'red':''}">${st.roll}</td>
+                        <td class="tc fw-9 red" style="letter-spacing:1px">${st.isNSO?'NSO':''}</td>
+                    </tr>`;
                 };
 
                 let chunkSize = 40; 
                 for (let i = 0; i < flatRoomRollsForAttendance.length; i += chunkSize) {
                     let chunk = flatRoomRollsForAttendance.slice(i, i + chunkSize);
-                    let pageNum = Math.floor(i / chunkSize) + 1;
-                    let totalPages = Math.ceil(flatRoomRollsForAttendance.length / chunkSize);
-                    let pageLabel = totalPages > 1 ? `<br><span style="font-size:0.85rem; color:#475569;">Page ${pageNum} of ${totalPages}</span>` : '';
-                    let attTableContent = '';
+                    let pNum = Math.floor(i / chunkSize) + 1, tPages = Math.ceil(flatRoomRollsForAttendance.length / chunkSize);
+                    let pLabel = tPages > 1 ? `<br><span class="fs-sm">Page ${pNum} of ${tPages}</span>` : '';
+                    let attHtml = '';
 
                     if (chunk.length > 20) {
-                        let leftPart = chunk.slice(0, 20), rightPart = chunk.slice(20);
-                        attTableContent = `
-                        <div style="display: flex; gap: 15px; width: 100%; margin-top: 5px;">
-                            <table class="att-tbl" style="width: 50%;">
-                                <thead><tr><th style="width:15%">S.No</th><th style="width:30%">Class</th><th style="width:25%">Roll No</th><th style="width:30%">Sign</th></tr></thead>
-                                <tbody>${renderTable(leftPart, i)}</tbody>
-                            </table>
-                            <table class="att-tbl" style="width: 50%;">
-                                <thead><tr><th style="width:15%">S.No</th><th style="width:30%">Class</th><th style="width:25%">Roll No</th><th style="width:30%">Sign</th></tr></thead>
-                                <tbody>${renderTable(rightPart, i + 20)}</tbody>
-                            </table>
+                        let lHtml = '', rHtml = '';
+                        for(let j=0; j<20; j++) lHtml += mkRow(chunk[j], j, i);
+                        for(let j=0; j<20; j++) rHtml += mkRow(chunk[j+20], j, i+20);
+                        attHtml = `<div style="display:flex; gap:15px; margin-top:5px;">
+                            <table class="att-tbl" style="width:50%;"><thead><tr><th style="width:15%">S.No</th><th style="width:30%">Class</th><th style="width:25%">Roll No</th><th style="width:30%">Sign</th></tr></thead><tbody>${lHtml}</tbody></table>
+                            <table class="att-tbl" style="width:50%;"><thead><tr><th style="width:15%">S.No</th><th style="width:30%">Class</th><th style="width:25%">Roll No</th><th style="width:30%">Sign</th></tr></thead><tbody>${rHtml}</tbody></table>
                         </div>`;
                     } else {
-                        attTableContent = `
-                        <table class="att-tbl" style="margin-top: 10px;">
-                            <thead><tr>
-                                <th style="width:10%">क्र. सं.<br><small>(S.No)</small></th>
-                                <th style="width:30%">कक्षा एवं विषय<br><small>(Class & Sub)</small></th>
-                                <th style="width:25%">रोल नंबर<br><small>(Roll No)</small></th>
-                                <th style="width:35%">हस्ताक्षर<br><small>(Signature)</small></th>
-                            </tr></thead>
-                            <tbody>${renderTable(chunk, i)}</tbody>
+                        let cHtml = '';
+                        for(let j=0; j<chunk.length; j++) cHtml += mkRow(chunk[j], j, i);
+                        attHtml = `<table class="att-tbl" style="margin-top:10px;">
+                            <thead><tr><th style="width:10%">S.No</th><th style="width:30%">Class & Sub</th><th style="width:25%">Roll No</th><th style="width:35%">Signature</th></tr></thead>
+                            <tbody>${cHtml}</tbody>
                         </table>`;
                     }
 
-                    groupedPagesHTML += `
+                    HTML += `
                     <div class="print-page">
                         <div class="page-content">
-                            <table class="header-tbl" style="margin-bottom: 10px;">
-                                <tr><td class="school-name" colspan="2">${sName}</td></tr>
-                                <tr><td colspan="2" style="font-weight:bold; font-size:1.1rem;">ATTENDANCE SHEET (उपस्थिति पत्रक) - ${eName}</td></tr>
-                                <tr style="font-weight: bold; font-size: 0.95rem;">
-                                    <td style="width: 50%; text-align:left; padding-left:15px;">कक्ष संख्या: <span style="color:#1e3a8a; font-size: 1.1rem;">${room.name}</span></td>
-                                    <td style="width: 50%; text-align:right; padding-right:15px;">दिनांक: ${eDate} | ${eShift} ${pageLabel}</td>
+                            <table class="header-tbl" style="margin-bottom:10px;">
+                                <tr><td colspan="2" class="school-name">${sName}</td></tr>
+                                <tr><td colspan="2" class="fw-b fs-md">ATTENDANCE SHEET (उपस्थिति पत्रक) - ${eName}</td></tr>
+                                <tr class="fw-b fs-sm">
+                                    <td class="tl" style="width:50%; padding-left:15px;">कक्ष संख्या: <span class="blue fs-md">${room.name}</span></td>
+                                    <td class="tr" style="width:50%; padding-right:15px;">दिनांक: ${eDate} | ${eShift} ${pLabel}</td>
                                 </tr>
                             </table>
-                            ${attTableContent}
+                            ${attHtml}
                         </div>
                         <div class="bottom-section">
                             <div class="signatures">
                                 <div>हस्ताक्षर वीक्षक<br><small style="font-weight:normal">(Invigilator Sign)</small></div>
-                                <div style="text-align: right;">हस्ताक्षर केन्द्राधीक्षक<br><small style="font-weight:normal">(Center Supdt.)</small></div>
+                                <div class="tr">हस्ताक्षर केन्द्राधीक्षक<br><small style="font-weight:normal">(Center Supdt.)</small></div>
                             </div>
                             <div class="print-footer">Generated by <b>Srinis AI</b></div>
                         </div>
@@ -596,72 +519,68 @@
                 }
             });
 
-            if (rooms.length < teacherPool.length) {
-                dutyListData.push({ room: "सुरक्षित (Reserve)", teacher: teacherPool[rooms.length] });
-            }
-
+            if (rooms.length < teacherPool.length) dutyListData.push({ room: "सुरक्षित (Reserve)", teacher: teacherPool[rooms.length] });
             let finalDutyList = [ { room: "परीक्षा कार्यालय", teacher: inchargeName, isIncharge: true }, ...dutyListData ];
-            let finalAdminPagesHTML = '';
 
             if(masterSummaryData.length > 0) {
-                let summaryHTML = masterSummaryData.map(m => {
-                    let roomTotal = m.classSummaries.reduce((sum, cs) => sum + cs.total, 0);
-                    let classDetails = m.classSummaries.map(cs => `
-                        <div style="border-bottom: 1px dashed #ccc; padding-bottom: 5px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: flex-start;">
-                            <div style="flex: 1; font-size: 1.05rem;"><b>${cs.className}</b> : <span style="color: #1e3a8a; font-weight:600;">${cs.summaryText}</span> 
-                            ${cs.nso.length > 0 ? `<span style="color: #dc2626; font-size: 0.95rem; margin-left: 8px;"><b>(NSO: ${cs.nso.join(', ')})</b></span>` : ''}</div>
-                            <div style="font-weight: 900; border: 2px solid #000; padding: 4px 12px; border-radius: 4px; margin-left: 10px; font-size: 1.1rem; background: #fff; -webkit-print-color-adjust: exact;">Total: ${cs.total}</div>
-                        </div>`).join('');
-                    return `
-                    <tr>
-                        <td class="room-col" style="text-align: center; vertical-align: middle; padding: 15px;">
-                            <div style="font-size: 1.3rem; font-weight: 900; margin-bottom: 8px;">${m.roomName}</div>
-                            <div style="display: inline-block; border: 2px solid #000; background: #f1f5f9; padding: 5px 12px; border-radius: 6px; font-weight: bold; font-size: 1.1rem; -webkit-print-color-adjust: exact;">Total: ${roomTotal}</div>
+                let sHtml = masterSummaryData.map(m => {
+                    let rTot = m.classSummaries.reduce((sum, cs) => sum + cs.total, 0);
+                    let clsHtml = m.classSummaries.map(cs => {
+                        let badge = cs.nso.length > 0 ? `<span class="red fs-sm" style="margin-left:8px;"><b>(NSO: ${cs.nso.join(', ')})</b></span>` : '';
+                        return `<div style="border-bottom:1px dashed #ccc; padding-bottom:5px; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center;">
+                            <div style="flex:1; font-size:1.05rem;"><b>${cs.className}</b> : <span class="blue fw-b">${cs.summaryText}</span> ${badge}</div>
+                            <div class="tot-box">Total: ${cs.total}</div>
+                        </div>`;
+                    }).join('');
+                    return `<tr>
+                        <td class="tc" style="vertical-align:middle; padding:15px;">
+                            <div class="fs-lg fw-9" style="margin-bottom:8px;">${m.roomName}</div>
+                            <div class="tot-box" style="display:inline-block;">Total: ${rTot}</div>
                         </td>
-                        <td style="text-align:left; padding: 10px 15px; line-height: 1.6;">${classDetails}</td>
+                        <td class="tl" style="padding:10px 15px; line-height:1.6;">${clsHtml}</td>
                     </tr>`;
                 }).join('');
 
-                finalAdminPagesHTML += `
+                HTML += `
                 <div class="print-page">
                     <div class="page-content">
-                        <table class="header-tbl" style="margin-bottom: 20px;">
-                            <tr><td class="school-name" colspan="2">${sName}</td></tr>
-                            <tr><td colspan="2" style="font-weight:bold;">${eName} | ${eDate}</td></tr>
+                        <table class="header-tbl" style="margin-bottom:20px;">
+                            <tr><td colspan="2" class="school-name">${sName}</td></tr>
+                            <tr><td colspan="2" class="fw-b">${eName} | ${eDate}</td></tr>
                         </table>
                         <div class="master-title">नोटिस बोर्ड: बैठक व्यवस्था (Notice Board Summary)</div>
                         <table class="master-tbl">
                             <thead><tr><th style="width:25%">कमरा (Room)</th><th style="width:75%">कक्षा एवं रोल नंबर विवरण (Class & Roll Details)</th></tr></thead>
-                            <tbody>${summaryHTML}</tbody>
+                            <tbody>${sHtml}</tbody>
                         </table>
                     </div>
                     <div class="bottom-section">
-                        <div style="padding-bottom:15px; text-align: center; font-size: 1.3rem; font-weight: bold;">शुभकामनाएं! (Best of Luck)</div>
+                        <div style="padding-bottom:15px;" class="tc fs-lg fw-b">शुभकामनाएं! (Best of Luck)</div>
                         <div class="print-footer">Generated by <b>Srinis AI</b></div>
                     </div>
                 </div>`;
 
-                let dutyListHTML = finalDutyList.map((d, i) => `
+                let dutyHtml = finalDutyList.map((d, i) => `
                     <tr style="${d.isIncharge ? 'background-color:#f8fafc; -webkit-print-color-adjust:exact;' : ''}">
-                        <td style="text-align:center; font-weight:bold;">${i+1}</td>
-                        <td class="room-col" style="${d.room.includes('Reserve') ? 'color:#b45309;' : ''}">${d.room}</td>
-                        <td style="text-align:left; padding-left:20px; font-weight:bold; font-size: 1.1rem;">${d.teacher} ${d.isIncharge ? '<br><small style="color:#b45309;">(Exam Incharge)</small>' : ''}</td>
+                        <td class="tc fw-b">${i+1}</td>
+                        <td class="tc fw-b" style="${d.room.includes('Reserve') ? 'color:#b45309;' : ''}">${d.room}</td>
+                        <td class="tl fw-b fs-md" style="padding-left:20px;">${d.teacher} ${d.isIncharge ? '<br><small class="brown">(Exam Incharge)</small>' : ''}</td>
                         <td></td>
                     </tr>`).join('');
 
-                finalAdminPagesHTML += `
+                HTML += `
                 <div class="print-page">
                     <div class="page-content">
-                        <table class="header-tbl" style="margin-bottom: 20px; background:#fefce8; -webkit-print-color-adjust: exact;">
+                        <table class="header-tbl" style="margin-bottom:20px; background:#fefce8; -webkit-print-color-adjust:exact;">
                             <tr><td class="school-name">${sName}</td></tr>
-                            <tr><td style="font-weight:bold; color:#b45309; padding: 10px !important;">⚠️ CONFIDENTIAL: INTERNAL DUTY ROSTER (वीक्षक ड्यूटी चार्ट)</td></tr>
+                            <tr><td class="fw-b brown" style="padding:10px !important;">⚠️ CONFIDENTIAL: INTERNAL DUTY ROSTER (वीक्षक ड्यूटी चार्ट)</td></tr>
                         </table>
                         <div class="master-title" style="text-decoration:none;">परीक्षा ड्यूटी चार्ट (Exam Duty Chart)</div>
                         <table class="master-tbl">
                             <thead><tr><th style="width:10%">क्र. सं.</th><th style="width:30%">कक्ष/हॉल नंबर (Room)</th><th style="width:40%">नियुक्त वीक्षक (Invigilator Name)</th><th style="width:20%">हस्ताक्षर (Sign)</th></tr></thead>
-                            <tbody>${dutyListHTML}</tbody>
+                            <tbody>${dutyHtml}</tbody>
                         </table>
-                        <div style="margin-top:40px; padding:15px; border:1px solid #ccc; font-size:0.95rem; background:#f9fafb; -webkit-print-color-adjust: exact;">
+                        <div style="margin-top:40px; padding:15px; border:1px solid #ccc; font-size:0.95rem; background:#f9fafb; -webkit-print-color-adjust:exact;">
                             <b>निर्देश:</b> यह सूची केवल एग्जाम इंचार्ज और केन्द्राधीक्षक के उपयोग के लिए है। कृपया इसे छात्रों के सूचना पट्ट (Notice Board) पर चस्पा न करें।<br>
                         </div>
                     </div>
@@ -671,33 +590,29 @@
                 </div>`;
             }
 
-            container.innerHTML = finalAdminPagesHTML + groupedPagesHTML;
+            document.getElementById('print-container').innerHTML = HTML;
             setTimeout(() => { document.getElementById("print-container").scrollIntoView({ behavior: 'smooth' }); }, 100);
         }
 
-        // --- MOBILE VIEWPORT FIX FOR PDF EXPORT ---
+        // MOBILE PDF FIX
         function downloadOrPrintPDF() {
             let container = document.getElementById('print-container');
             if(container.innerHTML.trim() === '') { alert("⚠️ कृपया पहले 'Generate Plan' पर क्लिक करके प्लान बनाएं।"); return; }
-
             let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
             if(isMobile) {
                 let btn = document.querySelector('.btn-prt');
                 let originalText = btn.innerHTML;
-                btn.innerHTML = "⏳ Downloading PDF...";
-                btn.disabled = true;
-
+                btn.innerHTML = "⏳ Downloading PDF..."; btn.disabled = true;
                 document.body.classList.add('pdf-export-mode');
                 let viewport = document.querySelector("meta[name=viewport]");
                 if(viewport) viewport.setAttribute("content", "width=800");
 
                 var opt = {
-                    margin:       0,
-                    filename:     'Seating_Plan_' + new Date().getTime() + '.pdf',
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true, logging: false, scrollY: 0, windowWidth: 800 },
-                    jsPDF:        { unit: 'px', format: [800, 1131], orientation: 'portrait' }
+                    margin: 0, filename: 'Seating_Plan_' + new Date().getTime() + '.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, logging: false, scrollY: 0, windowWidth: 800 },
+                    jsPDF: { unit: 'px', format: [800, 1131], orientation: 'portrait' }
                 };
 
                 setTimeout(() => {
@@ -711,9 +626,7 @@
                         btn.innerHTML = originalText; btn.disabled = false; alert("PDF डाउनलोड में त्रुटि हुई।");
                     });
                 }, 500);
-            } else {
-                window.print();
-            }
+            } else window.print();
         }
     </script>
 </body>
