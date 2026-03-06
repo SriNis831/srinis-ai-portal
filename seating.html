@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seating & Attendance Planner - Srinis AI</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
             --primary: #2563eb; --primary-dark: #1d4ed8;
@@ -134,6 +135,16 @@
             }
             .print-page:last-child { page-break-after: auto; }
         }
+
+        /* --- PDF EXPORT SPECIFIC STYLES --- */
+        body.pdf-export-mode { background: white !important; padding: 0 !important; margin: 0 !important; }
+        body.pdf-export-mode .controls, body.pdf-export-mode .action-bar, body.pdf-export-mode .ui-footer { display: none !important; }
+        body.pdf-export-mode #print-container { gap: 0 !important; margin: 0 !important; display: block !important; }
+        body.pdf-export-mode .print-page { 
+            box-shadow: none !important; border-radius: 0 !important; 
+            margin: 0 !important; width: 210mm !important; height: 296mm !important; 
+            page-break-after: always; page-break-inside: avoid;
+        }
     </style>
 </head>
 <body>
@@ -195,7 +206,7 @@
         <a href="admitcard.html" class="btn-home">🎫 Admit Card</a>
         <a href="setup.html" class="btn-edit">🏫 School Profile</a>
         <button class="btn-gen" onclick="generateAllRooms()">⚙️ Generate Plan</button>
-        <button class="btn-prt" onclick="window.print()">🖨️ Print Layout</button>
+        <button class="btn-prt" onclick="downloadOrPrintPDF()">🖨️ Print Layout</button>
         <button class="btn-clr" onclick="clearRooms()" title="Clear Rooms">🗑️ Clear</button>
     </div>
 
@@ -243,14 +254,13 @@
                 });
             }
 
-            // Load Settings
             let savedPattern = localStorage.getItem('savedPatternV1');
             if(savedPattern) document.getElementById('pattern').value = savedPattern;
 
             let savedDist = localStorage.getItem('savedDistributionV1');
             if(savedDist) document.getElementById('distribution').value = savedDist;
 
-            // Deep JSON Loading for Rooms to save input values
+            // Deep JSON Loading for Rooms
             let savedRoomsJSON = localStorage.getItem('savedRoomsJSON_V1');
             if(savedRoomsJSON) {
                 try {
@@ -299,7 +309,6 @@
             }
         }
 
-        // Live input tracking saves to JSON automatically
         document.getElementById('input-area').addEventListener('input', () => { updateLiveTracker(); saveRoomsLocally(); });
         document.getElementById('pattern').addEventListener('change', () => { updateLiveTracker(); saveRoomsLocally(); });
         document.getElementById('distribution').addEventListener('change', () => { saveRoomsLocally(); });
@@ -314,8 +323,6 @@
                     extra: entry.querySelector('.r-extra').value
                 });
             });
-            
-            // Save as JSON instead of HTML String
             localStorage.setItem('savedRoomsJSON_V1', JSON.stringify(roomsData));
             localStorage.setItem('savedPatternV1', document.getElementById('pattern').value);
             localStorage.setItem('savedDistributionV1', document.getElementById('distribution').value);
@@ -416,7 +423,8 @@
             let masterSummaryData = []; 
             let dutyListData = [];
             let groupedPagesHTML = '';
-            let globalStreamIdx = 0; 
+
+            let lastStreamPlaced = 0; // Ensures perfect continuity between columns and extra seats
 
             rooms.forEach((room, rIdx) => {
                 if (activeStreams.every(s => s.index >= s.students.length)) return;
@@ -427,41 +435,41 @@
                 let flatRoomRollsForAttendance = [];
                 let adjustedList = [];
 
-                // Fill Logic (Vertical Column First)
-                if (distribution === 'proportional' || distribution === 'sequential') {
-                    for (let c = 0; c < room.rows; c++) {
-                        let reverse = (pattern === 'snake' && c % 2 === 1);
-                        for (let d = 0; d < room.desks; d++) {
-                            let deskIndex = reverse ? (room.desks - 1 - d) : d;
-                            if (pattern === 'gap' && (c + deskIndex) % 2 !== 0) { grid[deskIndex][c] = "GAP"; continue; }
+                // PERFECT SEATING ALGORITHM (Gapless Column Fill)
+                for (let c = 0; c < room.rows; c++) {
+                    let reverse = (pattern === 'snake' && c % 2 === 1);
+                    let preferredClassIdx = c % activeStreams.length; // Start column with logical class
+                    
+                    for (let d = 0; d < room.desks; d++) {
+                        let deskIndex = reverse ? (room.desks - 1 - d) : d;
+                        if (pattern === 'gap' && (c + deskIndex) % 2 !== 0) { grid[deskIndex][c] = "GAP"; continue; }
 
-                            for(let i=0; i < activeStreams.length; i++) {
-                                let sIdx = (globalStreamIdx + i) % activeStreams.length;
-                                let stream = activeStreams[sIdx];
-                                
-                                while(stream.index < stream.students.length && stream.students[stream.index].isNSO) {
-                                    let nsoSt = stream.students[stream.index++];
-                                    flatRoomRollsForAttendance.push(nsoSt);
-                                }
+                        for(let i = 0; i < activeStreams.length; i++) {
+                            let sIdx = (preferredClassIdx + i) % activeStreams.length;
+                            let stream = activeStreams[sIdx];
+                            
+                            while(stream.index < stream.students.length && stream.students[stream.index].isNSO) {
+                                let nsoSt = stream.students[stream.index++];
+                                flatRoomRollsForAttendance.push(nsoSt);
+                            }
 
-                                if (stream.index < stream.students.length) {
-                                    let st = stream.students[stream.index++];
-                                    grid[deskIndex][c] = st;
-                                    flatRoomRollsForAttendance.push(st);
-                                    globalStreamIdx = sIdx;
-                                    break;
-                                }
+                            if (stream.index < stream.students.length) {
+                                let st = stream.students[stream.index++];
+                                grid[deskIndex][c] = st;
+                                flatRoomRollsForAttendance.push(st);
+                                preferredClassIdx = sIdx; // If class finishes, next student in this column stays continuous
+                                lastStreamPlaced = sIdx;
+                                break;
                             }
                         }
-                        globalStreamIdx = (globalStreamIdx + 1) % activeStreams.length;
                     }
                 }
 
-                // Fill Extra Seats
+                // Fill Extra Seats seamlessly
                 for (let e = 0; e < room.extra; e++) {
                     let assigned = false;
-                    for(let i=0; i < activeStreams.length; i++) {
-                        let sIdx = (globalStreamIdx + i) % activeStreams.length;
+                    for(let i = 0; i < activeStreams.length; i++) {
+                        let sIdx = (lastStreamPlaced + i) % activeStreams.length;
                         let stream = activeStreams[sIdx];
                         
                         while(stream.index < stream.students.length && stream.students[stream.index].isNSO) {
@@ -473,7 +481,7 @@
                             let st = stream.students[stream.index++];
                             flatRoomRollsForAttendance.push(st);
                             adjustedList.push(`<b>${st.roll}</b> (${st.fullClassName})`);
-                            globalStreamIdx = sIdx;
+                            lastStreamPlaced = sIdx;
                             assigned = true;
                             break;
                         }
@@ -481,7 +489,7 @@
                     if(!assigned) break;
                 }
 
-                // FIX: Section-wise Room Summaries & Notice Board Data
+                // Section-wise Room Summaries & Notice Board Data (Full Class Names)
                 let roomClassGroups = {};
                 flatRoomRollsForAttendance.forEach(st => {
                     if(!roomClassGroups[st.fullClassName]) {
@@ -682,12 +690,12 @@
                 }
             });
 
-            // FIX: Add ONLY ONE Reserve Teacher (If Available)
+            // 1. ADD ONLY ONE RESERVE TEACHER
             if (rooms.length < teacherPool.length) {
                 dutyListData.push({ room: "सुरक्षित (Reserve)", teacher: teacherPool[rooms.length] });
             }
 
-            // FIX: Add Exam Incharge at Number 1 Position
+            // 2. EXAM INCHARGE AT POSITION 1
             let finalDutyList = [
                 { room: "परीक्षा कार्यालय", teacher: inchargeName, isIncharge: true },
                 ...dutyListData
@@ -696,7 +704,7 @@
             let finalAdminPagesHTML = '';
 
             if(masterSummaryData.length > 0) {
-                // MASTER NOTICE BOARD
+                // MASTER NOTICE BOARD (Section Wise)
                 finalAdminPagesHTML += `
                 <div class="print-page">
                     <div class="page-content">
@@ -721,7 +729,7 @@
                                                         <span style="color: #1e3a8a; font-weight:600;">${cs.summaryText}</span> 
                                                         ${nsoBadge}
                                                     </div>
-                                                    <div style="font-weight: bold; background: #e2e8f0; padding: 4px 10px; border: 2px solid #000; border-radius: 4px; margin-left: 10px; white-space: nowrap; font-size: 1.1rem;">
+                                                    <div style="font-weight: bold; background: #e2e8f0; padding: 4px 10px; border-radius: 4px; margin-left: 10px; white-space: nowrap; font-size: 1.1rem;">
                                                         Total: ${cs.total}
                                                     </div>
                                                 </div>`;
@@ -782,6 +790,49 @@
             container.innerHTML = finalAdminPagesHTML + groupedPagesHTML;
             
             setTimeout(() => { document.getElementById("print-container").scrollIntoView({ behavior: 'smooth' }); }, 100);
+        }
+
+        // --- 5. MOBILE PDF EXPORT SYSTEM ---
+        function downloadOrPrintPDF() {
+            let container = document.getElementById('print-container');
+            if(container.innerHTML.trim() === '') {
+                alert("⚠️ कृपया पहले 'Generate Plan' पर क्लिक करके प्लान बनाएं।");
+                return;
+            }
+
+            // Mobile Device Detection
+            let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+            if(isMobile) {
+                let btn = document.querySelector('.btn-prt');
+                let originalText = btn.innerHTML;
+                btn.innerHTML = "⏳ Downloading PDF...";
+                btn.disabled = true;
+
+                document.body.classList.add('pdf-export-mode');
+
+                var opt = {
+                    margin:       0,
+                    filename:     'Seating_Plan_' + new Date().getTime() + '.pdf',
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true, logging: false },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                html2pdf().set(opt).from(container).save().then(() => {
+                    document.body.classList.remove('pdf-export-mode');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }).catch(err => {
+                    document.body.classList.remove('pdf-export-mode');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    alert("PDF डाउनलोड में त्रुटि हुई।");
+                });
+            } else {
+                // Desktop
+                window.print();
+            }
         }
     </script>
 </body>
