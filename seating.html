@@ -136,23 +136,23 @@
             .print-page:last-child { page-break-after: auto; }
         }
 
-        /* --- PDF EXPORT SPECIFIC STYLES (Fixed for Mobile Scaling) --- */
+        /* --- ✨ PDF EXPORT SPECIFIC STYLES (Strictly Locked to 800x1131 pixels) ✨ --- */
         body.pdf-export-mode { 
             background: white !important; padding: 0 !important; margin: 0 !important; 
-            width: 1024px !important; 
+            width: 800px !important; /* Force Exact A4 Width in Pixels */
         }
         body.pdf-export-mode .controls, body.pdf-export-mode .action-bar, body.pdf-export-mode .ui-footer { 
             display: none !important; 
         }
         body.pdf-export-mode #print-container { 
-            gap: 0 !important; margin: 0 !important; display: block !important; width: 1024px !important; 
+            gap: 0 !important; margin: 0 !important; display: block !important; width: 800px !important; 
         }
         body.pdf-export-mode .print-page { 
             box-shadow: none !important; border-radius: 0 !important; 
             margin: 0 !important; 
-            width: 210mm !important; 
-            height: 296mm !important; 
-            max-height: 296mm !important; 
+            width: 800px !important; /* 100% Strict Width */
+            height: 1131px !important; /* 100% Strict Height */
+            max-height: 1131px !important; 
             overflow: hidden !important; 
             page-break-after: always; 
             page-break-inside: avoid;
@@ -709,7 +709,6 @@
             let finalAdminPagesHTML = '';
 
             if(masterSummaryData.length > 0) {
-                // MASTER NOTICE BOARD (Section Wise with Room Total)
                 finalAdminPagesHTML += `
                 <div class="print-page">
                     <div class="page-content">
@@ -719,34 +718,33 @@
                         </table>
                         <div class="master-title">नोटिस बोर्ड: बैठक व्यवस्था (Notice Board Summary)</div>
                         <table class="master-tbl">
-                            <thead><tr><th style="width:20%">कमरा (Room)</th><th style="width:80%">कक्षा एवं रोल नंबर विवरण (Class & Roll Details)</th></tr></thead>
+                            <thead><tr><th style="width:25%">कमरा (Room)</th><th style="width:75%">कक्षा एवं रोल नंबर विवरण (Class & Roll Details)</th></tr></thead>
                             <tbody>
                                 ${masterSummaryData.map(m => {
                                     let roomTotal = m.classSummaries.reduce((sum, cs) => sum + cs.total, 0);
                                     return `
                                     <tr>
-                                        <td class="room-col" style="vertical-align: middle;">
-                                            <b style="font-size:1.15rem;">${m.roomName}</b><br>
-                                            <div style="margin-top: 5px; font-size: 1rem; color: #b45309; font-weight: 900;">Total: ${roomTotal}</div>
+                                        <td class="room-col" style="text-align: center; vertical-align: middle; padding: 15px;">
+                                            <div style="font-size: 1.3rem; font-weight: 900; margin-bottom: 8px;">${m.roomName}</div>
+                                            <div style="display: inline-block; border: 2px solid #000; background: #f1f5f9; padding: 5px 12px; border-radius: 6px; font-weight: bold; font-size: 1.1rem; -webkit-print-color-adjust: exact;">
+                                                Total: ${roomTotal}
+                                            </div>
                                         </td>
                                         <td style="text-align:left; padding: 10px 15px; line-height: 1.6;">
                                             ${m.classSummaries.map(cs => {
-                                                let nsoBadge = cs.nso.length > 0 ? \`<br><span style="color: #dc2626; font-size: 0.95rem; margin-top: 4px; display: block;"><b>NSO:</b> \${cs.nso.join(', ')}</span>\` : '';
+                                                let nsoBadge = cs.nso.length > 0 ? \`<span style="color: #dc2626; font-size: 0.95rem; margin-left: 8px;"><b>(NSO: \${cs.nso.join(', ')})</b></span>\` : '';
                                                 return \`
-                                                <div style="border-bottom: 1px dashed #ccc; padding-bottom: 5px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: flex-start;">
-                                                    <div style="flex: 1;">
+                                                <div style="border-bottom: 1px dashed #ccc; padding-bottom: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                                                    <div style="flex: 1; font-size: 1.05rem;">
                                                         <b>\${cs.className}</b> : 
                                                         <span style="color: #1e3a8a; font-weight:600;">\${cs.summaryText}</span> 
                                                         \${nsoBadge}
                                                     </div>
-                                                    <div style="font-weight: bold; background: #e2e8f0; padding: 4px 10px; border-radius: 4px; margin-left: 10px; white-space: nowrap; font-size: 1.1rem;">
+                                                    <div style="font-weight: 900; border: 2px solid #000; padding: 4px 12px; border-radius: 4px; margin-left: 10px; font-size: 1.1rem; background: #fff; -webkit-print-color-adjust: exact;">
                                                         Total: \${cs.total}
                                                     </div>
                                                 </div>\`;
                                             }).join('')}
-                                            <div style="text-align: right; padding-top: 5px; font-weight: 900; font-size: 1.1rem; color: #1e3a8a;">
-                                                कमरे में कुल छात्र: ${roomTotal}
-                                            </div>
                                         </td>
                                     </tr>
                                     `;
@@ -760,7 +758,6 @@
                     </div>
                 </div>`;
 
-                // SECRET DUTY LIST PAGE
                 finalAdminPagesHTML += `
                 <div class="print-page">
                     <div class="page-content">
@@ -806,7 +803,7 @@
             setTimeout(() => { document.getElementById("print-container").scrollIntoView({ behavior: 'smooth' }); }, 100);
         }
 
-        // --- 5. ✨ MOBILE VIEWPORT FIX FOR PDF EXPORT ✨ ---
+        // --- 5. ✨ STRICT 800x1131 PX MOBILE PDF EXPORT ✨ ---
         function downloadOrPrintPDF() {
             let container = document.getElementById('print-container');
             if(container.innerHTML.trim() === '') {
@@ -822,10 +819,10 @@
                 btn.innerHTML = "⏳ Downloading PDF...";
                 btn.disabled = true;
 
-                // Force desktop layout
+                // Force strictly 800px width on body
                 document.body.classList.add('pdf-export-mode');
                 let viewport = document.querySelector("meta[name=viewport]");
-                if(viewport) viewport.setAttribute("content", "width=1024");
+                if(viewport) viewport.setAttribute("content", "width=800");
 
                 var opt = {
                     margin:       0,
@@ -836,9 +833,9 @@
                         useCORS: true, 
                         logging: false,
                         scrollY: 0,
-                        windowWidth: 1024
+                        windowWidth: 800 // <-- Tell HTML2Canvas exactly 800px
                     },
-                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    jsPDF:        { unit: 'px', format: [800, 1131], orientation: 'portrait' } // <-- EXACT PIXEL FORMAT
                 };
 
                 setTimeout(() => {
