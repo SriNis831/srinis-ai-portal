@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <title>SRINIS AI - Vocational Portal</title>
+    
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@500;700&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
     
     <style>
@@ -26,7 +29,7 @@
             align-items: center;
             min-height: 100vh;
             overflow-x: hidden;
-            padding: 10px; /* Safe padding for mobile */
+            padding: 10px;
         }
 
         /* --- HERO SECTION --- */
@@ -39,9 +42,22 @@
             padding: 0 10px;
         }
 
+        /* LOGO LAYOUT KE LIYE NAYA CSS */
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px; /* Logo aur Text ke beech ka gap */
+        }
+
+        .custom-logo {
+            height: 80px; /* Text ke size se match karne ke liye */
+            width: auto;
+        }
+
         .srinis-logo {
             font-family: 'Montserrat', sans-serif;
-            font-size: 80px; /* Desktop Size */
+            font-size: 80px; 
             font-weight: 900;
             text-transform: uppercase;
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, #fff 100%);
@@ -67,7 +83,7 @@
             display: flex;
             justify-content: center;
             gap: 40px;
-            flex-wrap: wrap; /* Allows stacking on mobile */
+            flex-wrap: wrap; 
             max-width: 1200px;
             width: 100%;
             padding: 20px;
@@ -75,8 +91,8 @@
 
         .card {
             background: var(--card-bg);
-            width: 100%; /* Takes full width on mobile */
-            max-width: 350px; /* Limits width on desktop */
+            width: 100%; 
+            max-width: 350px; 
             border-radius: 20px;
             padding: 30px;
             text-align: center;
@@ -87,7 +103,7 @@
             cursor: pointer;
             text-decoration: none;
             color: white;
-            margin-bottom: 10px; /* Gap for mobile stacking */
+            margin-bottom: 10px; 
         }
 
         .card:hover {
@@ -146,12 +162,14 @@
             width: 100%;
         }
 
-        /* --- MOBILE RESPONSIVENESS (MEDIA QUERIES) --- */
+        /* --- MOBILE RESPONSIVENESS --- */
         @media (max-width: 768px) {
             header { margin-top: 30px; margin-bottom: 20px; }
             
+            .custom-logo { height: 45px; } /* Mobile ke liye chota logo */
+            
             .srinis-logo { 
-                font-size: 45px; /* Smaller Logo for Mobile */
+                font-size: 45px; 
                 letter-spacing: -1px;
             }
             
@@ -161,37 +179,28 @@
                 letter-spacing: 1px;
             }
 
-            .container { 
-                padding: 10px; 
-                gap: 20px; 
-            }
-
-            .card { 
-                padding: 25px; 
-            }
-            
+            .container { padding: 10px; gap: 20px; }
+            .card { padding: 25px; }
             .card h2 { font-size: 20px; }
             .card-icon { font-size: 40px; margin-bottom: 15px; }
         }
 
-        /* Animations */
         @keyframes fadeInDown {
             from { opacity: 0; transform: translateY(-20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
     </style>
 
     <script>
         function applyRandomTheme() {
             const themes = [
-                { p: '#ff6b35', s: '#ff9f43' }, // Orange
-                { p: '#00d2d3', s: '#54a0ff' }, // Cyan Blue
-                { p: '#ff4757', s: '#ff6b81' }, // Red/Pink
-                { p: '#2ecc71', s: '#27ae60' }, // Green
-                { p: '#9b59b6', s: '#8e44ad' }, // Purple
-                { p: '#f1c40f', s: '#f39c12' }, // Yellow
-                { p: '#e056fd', s: '#be2edd' }  // Neon
+                { p: '#ff6b35', s: '#ff9f43' },
+                { p: '#00d2d3', s: '#54a0ff' },
+                { p: '#ff4757', s: '#ff6b81' },
+                { p: '#2ecc71', s: '#27ae60' },
+                { p: '#9b59b6', s: '#8e44ad' },
+                { p: '#f1c40f', s: '#f39c12' },
+                { p: '#e056fd', s: '#be2edd' } 
             ];
             const randomTheme = themes[Math.floor(Math.random() * themes.length)];
             const root = document.documentElement.style;
@@ -204,7 +213,10 @@
 <body>
 
     <header>
-        <div class="srinis-logo">SriNis AI </div>
+        <div class="header-content">
+            <img src="logo.svg" alt="SriNis AI Logo" class="custom-logo">
+            <div class="srinis-logo">SriNis AI</div>
+        </div>
         <div class="tagline">Vocational Education Management System</div>     
     </header>
 
